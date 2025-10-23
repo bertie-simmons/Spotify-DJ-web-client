@@ -7,6 +7,16 @@ export default function TrackCard({ track, onRecommend, onAdd, playlists = [] })
   };
 
   return (
-    
+    <div className="bg-gray-800 p-4 rounded-lg flex items-center gap-4 hover:bg-gray-700 transition">
+      {track.album?.images?.[0] && (
+        // album art
+        <img
+          src={track.album.images[0].url}
+          alt={track.name}
+          className="w-16 h-16 rounded"
+        />
+      )}
+
+    </div>
   );
 }
