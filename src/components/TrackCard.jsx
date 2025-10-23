@@ -33,6 +33,36 @@ export default function TrackCard({ track, onRecommend, onAdd, playlists = [] })
           </div>
         )}
       </div>
+      
+      {/* buttons */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => onRecommend?.(track)}
+          className="p-2 bg-purple-600 hover:bg-purple-700 rounded-full transition"
+          title="Get Recommendations"
+        >
+          <Play size={16} />
+        </button>
+
+        {onAdd && (
+          <div className="relative group">
+            <button className="p-2 bg-blue-600 hover:bg-blue-700 rounded-full transition">
+              <Plus size={16} />
+            </button>
+            <div className="hidden group-hover:block absolute right-0 mt-2 w-48 bg-gray-900 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+              {playlists.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => onAdd(track.uri, p.id)}
+                  className="block w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800"
+                >
+                  {p.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
 
     </div>
   );
