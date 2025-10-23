@@ -1,21 +1,34 @@
-import { useState } from 'react'
-import React from 'react'
-import Sidebar from './components/Sidebar.jsx'
-import Player from './components/Player.jsx'    
+import React, { useContext } from "react";
+import { AuthProvider, AuthContext } from "./context/AuthContext";
+import Home from "./pages/Home";
+import useSpotifyPlayer from "./hooks/useSpotifyPlayer";
 
+function AppContent() {
+  const { token, handleLogin, handleLogout } = useContext(AuthContext);
 
-function App() {
-  const [count, setCount] = useState(0)
+  // initialize playback SDK when token is available
+  const { player, deviceId, currentTrack, isPlaying } = useSpotifyPlayer(token);
 
+  // pass these values as props to home page
   return (
-    <div className='h-screen bg-black'>
-      <div className='h-[90%} flex'>
-        <Sidebar/>
-
-      </div>
-      
-    </div>
-  )
+    <Home
+      token={token}
+      handleLogin={handleLogin}
+      handleLogout={handleLogout}
+      player={player}
+      deviceId={deviceId}
+      currentTrack={currentTrack}
+      isPlaying={isPlaying}
+    />
+  );
 }
 
-export default App
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
+}
+
+export default App;
