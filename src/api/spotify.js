@@ -14,3 +14,11 @@ export const searchTracks = async (token, query) => {
   const data = await res.json();
   return data.tracks.items;
 };
+
+// bpm, key, energy, danceability, valence
+export const getAudioFeatures = async (token, trackId) => {
+  const res = await fetch(`https://api.spotify.com/v1/audio-features/${trackId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.json();
+};
