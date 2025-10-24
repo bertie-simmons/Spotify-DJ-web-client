@@ -22,3 +22,16 @@ export const getAudioFeatures = async (token, trackId) => {
   });
   return res.json();
 };
+
+export const getRecommendations = async (token, seedTrackId, filters = {}) => {
+  let url = `https://api.spotify.com/v1/recommendations?seed_tracks=${seedTrackId}&limit=20`;
+  if (filters.key) url += `&target_key=${filters.key}`;
+  if (filters.bpm) url += `&target_tempo=${filters.bpm}`;
+  if (filters.energy) url += `&target_energy=${filters.energy}`;
+  if (filters.danceability) url += `&target_danceability=${filters.danceability}`;
+  if (filters.valence) url += `&target_valence=${filters.valence}`;
+
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  const data = await res.json();
+  return data.tracks;
+};
