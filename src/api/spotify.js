@@ -35,3 +35,11 @@ export const getRecommendations = async (token, seedTrackId, filters = {}) => {
   const data = await res.json();
   return data.tracks;
 };
+
+export const playTrack = async (token, deviceId, uri) => {
+  await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ uris: [uri] }),
+  });
+}
