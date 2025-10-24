@@ -42,4 +42,13 @@ export const playTrack = async (token, deviceId, uri) => {
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ uris: [uri] }),
   });
-}
+};
+
+
+export const addToPlaylist = async (token, playlistId, uri) => {
+  await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ uris: [uri] }),
+  });
+};
