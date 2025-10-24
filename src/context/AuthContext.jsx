@@ -3,7 +3,7 @@ import { createContext, useEffect, useState } from "react";
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(null);
+  const [token, setToken] = useState('');
   const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
   const REDIRECT_URI = import.meta.env.VITE_SPOTIFY_REDIRECT_URI;
   const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
@@ -44,3 +44,5 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
+export const useAuth = () => useContext(AuthContext);
