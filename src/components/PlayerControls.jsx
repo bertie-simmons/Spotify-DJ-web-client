@@ -54,3 +54,5 @@ export const PlayerControls = ({ currentTrack, isPlaying, onPlayToggle, onPrev, 
     </div>
   );
 };
+
+export default PlayerControls;
