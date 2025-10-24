@@ -12,22 +12,28 @@ export const AuthProvider = ({ children }) => {
     "streaming user-read-email user-read-private user-library-read user-library-modify playlist-read-private playlist-modify-public playlist-modify-private";
 
   useEffect(() => {
-    const hash = window.location.hash;
-    let storedToken = window.localStorage.getItem("token");
+  const hash = window.location.hash;
+  if (hash) {
+    // Only parse if there's actually a hash
+    const tokenFromHash = hash
+      .substring(1)
+      .split("&")
+      .find(elem => elem.startsWith("access_token"))
+      ?.split("=")[1];
 
-    if (!storedToken && hash) {
-      storedToken = hash
-        .substring(1)
-        .split("&")
-        .find((elem) => elem.startsWith("access_token"))
-        .split("=")[1];
-
+    if (tokenFromHash) {
+      window.localStorage.setItem("spotify_token", tokenFromHash);
+      setToken(tokenFromHash);
       window.location.hash = "";
-      window.localStorage.setItem("token", storedToken);
     }
-
-    setToken(storedToken);
-  }, []);
+  } else {
+    // Fallback: maybe token is already stored
+    const storedToken = window.localStorage.getItem("spotify_token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }
+}, []);
 
   const handleLogin = () => {
     window.location = `${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=${SCOPE}`;
