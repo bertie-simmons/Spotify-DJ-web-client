@@ -26,7 +26,31 @@ export const PlayerControls = ({ currentTrack, isPlaying, onPlayToggle, onPrev, 
       <p className="text-gray-400 text-sm mb-4">
         {currentTrack.artists?.map((a) => a.name).join(', ')}
       </p>
-
+      
+      {/* playback controls */}
+      <div className="flex items-center justify-center gap-4">
+        {/* previous */}
+        <button
+          onClick={onPrev}
+          className="p-2 hover:bg-gray-700 rounded-full transition"
+        >
+          <SkipBack size={24} />
+        </button>
+        {/* pause */}
+        <button
+          onClick={onPlayToggle}
+          className="p-3 bg-green-600 hover:bg-green-700 rounded-full transition"
+        >
+          {isPlaying ? <Pause size={24} /> : <Play size={24} />}
+        </button>
+        {/* next */}    
+        <button
+          onClick={onNext}
+          className="p-2 hover:bg-gray-700 rounded-full transition"
+        >
+          <SkipForward size={24} />
+        </button>
+      </div>
     </div>
   );
 };
