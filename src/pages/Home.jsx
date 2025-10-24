@@ -5,7 +5,7 @@ import { searchTracks, getAudioFeatures, getRecommendations, getPlaylists } from
 import SearchBar from "../components/Searchbar";
 import Filters from "../components/Filters";
 import TrackCard from "../components/TrackCard";
-import PlaylistList from "../components/PlaylistList";
+import Playlists from "../components/Playlists";
 import PlayerControls from "../components/PlayerControls";
 
 export default function Home() {
@@ -76,7 +76,7 @@ export default function Home() {
       )}
 
       {/* playlists */}
-      <PlaylistList playlists={playlists} />
+      <Playlists playlists={playlists} />
     </div>
   );
 }
