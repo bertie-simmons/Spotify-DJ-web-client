@@ -55,6 +55,13 @@ const TrackCard = ({ track, isPlaying, isCurrentTrack, onPlay }) => {
         {track.artist}
       </p>
 
+      {/* Audio Features (if available) */}
+      {track.bpm && (
+        <div className="flex gap-2 mt-2 text-xs text-gray-500">
+          <span>{track.bpm} BPM</span>
+          {track.key && <span>• {track.key}</span>}
+        </div>
+      )}
     </div>
   );
 };
