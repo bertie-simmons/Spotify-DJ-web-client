@@ -10,7 +10,7 @@ const Player = ({ currentTrack, isPlaying, onPlayPause, onNext, onPrevious }) =>
       <div className="flex items-center justify-between">
         {/* Track Info */}
         <div className="flex items-center gap-4 flex-1 min-w-0">
-          <div className="w-14 h-14 bg-gray-800 rounded flex items-center justify-center flex-shrink-0">
+          <div className="w-14 h-14 bg-gray-800 rounded flex items-center justify-center shrink-0">
             {currentTrack?.image ? (
               <img src={currentTrack.image} alt={currentTrack.name} className="w-full h-full rounded" />
             ) : (
@@ -27,7 +27,7 @@ const Player = ({ currentTrack, isPlaying, onPlayPause, onNext, onPrevious }) =>
           </div>
           <button 
             onClick={() => setLiked(!liked)}
-            className="ml-2 text-gray-400 hover:text-white transition flex-shrink-0"
+            className="ml-2 text-gray-400 hover:text-white transition shrink-0"
           >
             <Heart size={20} fill={liked ? 'currentColor' : 'none'} />
           </button>
