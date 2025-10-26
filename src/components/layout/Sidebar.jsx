@@ -5,7 +5,7 @@ const Sidebar = ({ playlists, onCreatePlaylist, onSelectPlaylist, activePlaylist
   return (
     <div className="w-64 bg-black h-full flex flex-col p-6">
       <div className="mb-8">
-        <h1 className="text-white text-2xl font-bold">Music Discovery</h1>
+        <h1 className="text-white text-2xl font-bold">Spotify Music Finder</h1>
       </div>
       
       <nav className="flex-1">
