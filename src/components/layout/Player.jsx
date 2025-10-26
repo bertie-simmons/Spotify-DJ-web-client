@@ -33,6 +33,39 @@ const Player = ({ currentTrack, isPlaying, onPlayPause, onNext, onPrevious }) =>
           </button>
         </div>
         
+        {/* Playback Controls */}
+        <div className="flex flex-col items-center gap-2 flex-1">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={onPrevious}
+              className="text-gray-400 hover:text-white transition"
+              disabled={!currentTrack}
+            >
+              <SkipBack size={20} />
+            </button>
+            
+            <button 
+              onClick={onPlayPause}
+              className="bg-white rounded-full p-2 hover:scale-105 transition disabled:opacity-50"
+              disabled={!currentTrack}
+            >
+              {isPlaying ? (
+                <Pause size={20} className="text-black" fill="black" />
+              ) : (
+                <Play size={20} className="text-black" fill="black" />
+              )}
+            </button>
+            
+            <button 
+              onClick={onNext}
+              className="text-gray-400 hover:text-white transition"
+              disabled={!currentTrack}
+            >
+              <SkipForward size={20} />
+            </button>
+          </div>
+          
+          
       </div>
     </div>
   );
