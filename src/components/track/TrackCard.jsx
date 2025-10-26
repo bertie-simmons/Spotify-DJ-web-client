@@ -11,7 +11,23 @@ const TrackCard = ({ track, isPlaying, isCurrentTrack, onPlay }) => {
       onMouseLeave={() => setShowPlayButton(false)}
       onClick={() => onPlay(track)}
     >
-      
+      {/* Album Art */}
+      <div className="relative aspect-square bg-gray-700 rounded mb-4 overflow-hidden">
+        {track.albumArt ? (
+          <img 
+            src={track.albumArt} 
+            alt={track.name} 
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <Music className="text-gray-500" size={48} />
+          </div>
+        )}
+        
+        
+      </div>
+
     </div>
   );
 };
