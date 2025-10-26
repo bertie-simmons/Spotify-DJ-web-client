@@ -77,6 +77,18 @@ const Player = ({ currentTrack, isPlaying, onPlayPause, onNext, onPrevious }) =>
           </div>
         </div>
         
+        {/* Volume Control */}
+        <div className="flex items-center gap-2 flex-1 justify-end">
+          <Volume2 size={20} className="text-gray-400" />
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={volume}
+            onChange={(e) => setVolume(e.target.value)}
+            className="w-24 h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-white"
+          />
+        </div>
       </div>
     </div>
   );
