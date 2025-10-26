@@ -10,6 +10,17 @@ const TrackList = ({ tracks, currentTrack, isPlaying, onPlay, onShowSimilar }) =
 
   return (
     <div className="w-full">
+      {/* table header */}
+      <div className="grid grid-cols-12 gap-4 px-4 py-2 text-gray-400 text-sm border-b border-gray-800 mb-2">
+        <div className="col-span-1 text-center">#</div>
+        <div className="col-span-5">Title</div>
+        <div className="col-span-3">Album</div>
+        <div className="col-span-2">BPM / Key</div>
+        <div className="col-span-1 flex justify-end">
+          <Clock size={16} />
+        </div>
+      </div>
+
       
     </div>
   );
