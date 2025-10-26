@@ -47,6 +47,14 @@ const TrackCard = ({ track, isPlaying, isCurrentTrack, onPlay }) => {
         </div>
       </div>
 
+      {/* Track Info */}
+      <h3 className="text-white font-semibold mb-1 truncate">
+        {track.name}
+      </h3>
+      <p className="text-gray-400 text-sm truncate">
+        {track.artist}
+      </p>
+
     </div>
   );
 };
