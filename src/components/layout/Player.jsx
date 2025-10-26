@@ -65,7 +65,18 @@ const Player = ({ currentTrack, isPlaying, onPlayPause, onNext, onPrevious }) =>
             </button>
           </div>
           
-          
+          {/* Progress Bar */}
+          <div className="flex items-center gap-2 w-full max-w-md">
+            <span className="text-xs text-gray-400">0:00</span>
+            <div className="flex-1 bg-gray-700 h-1 rounded-full overflow-hidden">
+              <div className="bg-white h-full w-0 rounded-full"></div>
+            </div>
+            <span className="text-xs text-gray-400">
+              {currentTrack?.duration || '0:00'}
+            </span>
+          </div>
+        </div>
+        
       </div>
     </div>
   );
