@@ -7,8 +7,9 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
 
-  const CLIENT_ID = '593d415b70ce4ed08614689371d49135';
+  const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
   const REDIRECT_URI = 'http://127.0.0.1:5173/callback';
+
   const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
   const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token";
   const SCOPE =
