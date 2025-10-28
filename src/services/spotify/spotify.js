@@ -41,6 +41,21 @@ export const search = async (query, types = ['track', 'artist', 'album', 'playli
   return fetchWithAuth(`/search?${params.toString()}`);
 };
 
+export const searchTracks = async (query, limit = 20) => {
+  const result = await search(query, ['track'], limit);
+  return result.tracks;
+};
+
+export const searchArtists = async (query, limit = 20) => {
+  const result = await search(query, ['artist'], limit);
+  return result.artists;
+};
+
+export const searchPlaylists = async (query, limit = 20) => {
+  const result = await search(query, ['playlist'], limit);
+  return result.playlists;
+};
+
 
 export const getPlaylists = async (token) => {
   const res = await fetch('https://api.spotify.com/v1/me/playlists', {
@@ -48,15 +63,6 @@ export const getPlaylists = async (token) => {
   });
   const data = await res.json();
   return data.items || [];
-};
-
-export const searchTracks = async (token, query) => {
-  const res = await fetch(
-    `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=20`,
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
-  const data = await res.json();
-  return data.tracks.items;
 };
 
 // bpm, key, energy, danceability, valence
