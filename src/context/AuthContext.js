@@ -37,4 +37,37 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  
+  // Fetch user profile
+  const fetchUserProfile = async () => {
+    try {
+      const token = await getAccessToken();
+      if (!token) {
+        setIsLoggedIn(false);
+        return;
+      }
+
+      const response = await fetch('https://api.spotify.com/v1/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUser({
+          id: data.id,
+          displayName: data.display_name,
+          email: data.email,
+          image: data.images?.[0]?.url,
+          country: data.country,
+          product: data.product
+        });
+      } else {
+        throw new Error('Failed to fetch user profile');
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      logout();
+    }
+  };
+}; 
