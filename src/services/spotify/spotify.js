@@ -30,6 +30,16 @@ export const getUserProfile = async (token) => {
   return fetchWithAuth('/me');
 };
 
+export const search = async (query, types = ['track', 'artist', 'album', 'playlist'], limit = 20) => {
+  const typeString = types.join(',');
+  const params = new URLSearchParams({
+    q: query,
+    type: typeString,
+    limit: limit.toString(),
+  });
+
+  return fetchWithAuth(`/search?${params.toString()}`);
+};
 
 
 export const getPlaylists = async (token) => {
