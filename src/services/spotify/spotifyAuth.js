@@ -1,142 +1,124 @@
-import { createContext, useState, useEffect, useContext } from "react";
+const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
+const REDIRECT_URI = import.meta.env.VITE_SPOTIFY_REDIRECT_URI;
+const SCOPES = import.meta.env.VITE_SPOTIFY_SCOPES;
 
-// create AuthContext
-export const AuthContext = createContext();
+const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
+const TOKEN_ENDPOINT = 'https://accounts.spotify.com/api/token';
 
-// authProvider component
-export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(null);
+// generate random string for state parameter
+const generateRandomString = (length) => {
+  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const values = crypto.getRandomValues(new Uint8Array(length));
+  return values.reduce((acc, x) => acc + possible[x % possible.length], '');
+};
 
-  const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-  const REDIRECT_URI = 'http://127.0.0.1:5173/callback';
+// generate code verifier for PKCE
+const generateCodeVerifier = () => {
+  return generateRandomString(64);
+};
 
-  const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
-  const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token";
-  const SCOPE =
-    "streaming user-read-email user-read-private user-library-read user-library-modify playlist-read-private playlist-modify-public playlist-modify-private";
+// generate code challenge from verifier
+const generateCodeChallenge = async (verifier) => {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(verifier);
 
-  // generate random string for code verifier
-  const generateRandomString = (length) => {
-    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    const values = crypto.getRandomValues(new Uint8Array(length));
-    return values.reduce((acc, x) => acc + possible[x % possible.length], "");
-  };
+  // generate SHA-256 hash
+  const digest = await crypto.subtle.digest('SHA-256', data);
 
-  // create SHA256 hash
-  const sha256 = async (plain) => {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(plain);
-    return window.crypto.subtle.digest('SHA-256', data);
-  };
+  // base64-url encode the hash
+  return btoa(String.fromCharCode(...new Uint8Array(digest)))
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
+};
 
-  // base64 encode
-  const base64encode = (input) => {
-    return btoa(String.fromCharCode(...new Uint8Array(input)))
-      .replace(/=/g, '')
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_');
-  };
+// redirect user to Spotify authorization
+export const redirectToSpotifyAuth = async () => {
+  const codeVerifier = generateCodeVerifier();
+  const codeChallenge = await generateCodeChallenge(codeVerifier);
+  const state = generateRandomString(16);
 
-  // check for token on mount
-  useEffect(() => {
-    const storedToken = window.localStorage.getItem("spotify_token");
-    const tokenExpiry = window.localStorage.getItem("token_expiry");
-    
-    if (storedToken && tokenExpiry) {
-      // check if token is still valid
-      if (Date.now() < parseInt(tokenExpiry)) {
-        setToken(storedToken);
-      } else {
-        // token expired, clear it
-        window.localStorage.removeItem("spotify_token");
-        window.localStorage.removeItem("token_expiry");
-      }
-    }
-  }, []);
+  // store code verifier in localStorage for later use
+  localStorage.setItem('code_verifier', codeVerifier);
+  localStorage.setItem('auth_state', state);
 
-  // handle callback and exchange code for token
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
+  const params = new URLSearchParams({
+    client_id: CLIENT_ID,
+    response_type: 'code',
+    redirect_uri: REDIRECT_URI,
+    scope: SCOPES,
+    state: state,
+    code_challenge_method: 'S256',
+    code_challenge: codeChallenge,
+  });
 
-    if (code) {
-      const codeVerifier = window.localStorage.getItem('code_verifier');
-      
-      if (codeVerifier) {
-        exchangeCodeForToken(code, codeVerifier);
-      }
-    }
-  }, []);
+  window.location.href = `${AUTH_ENDPOINT}?${params.toString()}`;
+};
 
-  // exchange authorization code for access token
-  const exchangeCodeForToken = async (code, codeVerifier) => {
-    const payload = {
+// exchange authorization code for access token
+export const exchangeCodeForToken = async (code) => {
+  const codeVerifier = localStorage.getItem('code_verifier');
+
+  const params = new URLSearchParams({
+    client_id: CLIENT_ID,
+    grant_type: 'authorization_code',
+    code: code,
+    redirect_uri: REDIRECT_URI,
+    code_verifier: codeVerifier,
+  });
+
+  try {
+    const response = await fetch(TOKEN_ENDPOINT, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: new URLSearchParams({
-        client_id: CLIENT_ID,
-        grant_type: 'authorization_code',
-        code,
-        redirect_uri: REDIRECT_URI,
-        code_verifier: codeVerifier,
-      }),
-    };
+      body: params.toString(),
+    });
 
-    try {
-      const response = await fetch(TOKEN_ENDPOINT, payload);
-      const data = await response.json();
-
-      if (data.access_token) {
-        const expiryTime = Date.now() + (data.expires_in * 1000);
-        window.localStorage.setItem("spotify_token", data.access_token);
-        window.localStorage.setItem("token_expiry", expiryTime.toString());
-        window.localStorage.removeItem('code_verifier');
-        
-        setToken(data.access_token);
-        
-        // clean up URL
-        window.history.replaceState({}, document.title, "/");
-      }
-    } catch (error) {
-      console.error('Error exchanging code for token:', error);
+    if (!response.ok) {
+      throw new Error('Failed to exchange code for token');
     }
-  };
 
-  // redirect to Spotify login with PKCE
-  const handleLogin = async () => {
-    const codeVerifier = generateRandomString(64);
-    const hashed = await sha256(codeVerifier);
-    const codeChallenge = base64encode(hashed);
+    const data = await response.json();
+    
+    // store token
+    const expiresAt = Date.now() + data.expires_in * 1000;
+    localStorage.setItem('access_token', data.access_token);
+    localStorage.setItem('token_expires_at', expiresAt.toString());
 
-    // store code verifier for later use
-    window.localStorage.setItem('code_verifier', codeVerifier);
+    // clean up
+    localStorage.removeItem('code_verifier');
+    localStorage.removeItem('auth_state');
 
-    const authURL =
-      `${AUTH_ENDPOINT}?client_id=${CLIENT_ID}` +
-      `&response_type=code` +
-      `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
-      `&scope=${encodeURIComponent(SCOPE)}` +
-      `&code_challenge_method=S256` +
-      `&code_challenge=${codeChallenge}`;
-
-    window.location.href = authURL;
-  };
-
-  // logout
-  const handleLogout = () => {
-    setToken(null);
-    window.localStorage.removeItem("spotify_token");
-    window.localStorage.removeItem("token_expiry");
-  };
-
-  return (
-    <AuthContext.Provider value={{ token, handleLogin, handleLogout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+    return data;
+  } catch (error) {
+    console.error('Error exchanging code for token:', error);
+    throw error;
+  }
 };
 
-// Hook to access auth context
-export const useAuth = () => useContext(AuthContext);
+// get access token
+export const getAccessToken = () => {
+  return localStorage.getItem('access_token');
+};
+
+// logout user
+export const logout = () => {
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('token_expires_at');
+  localStorage.removeItem('code_verifier');
+  localStorage.removeItem('auth_state');
+};
+
+// check if user is authenticated
+export const isAuthenticated = () => {
+  const accessToken = localStorage.getItem('access_token');
+  const expiresAt = localStorage.getItem('token_expires_at');
+
+  if (!accessToken || !expiresAt) {
+    return false;
+  }
+
+  return Date.now() < parseInt(expiresAt, 10);
+};
