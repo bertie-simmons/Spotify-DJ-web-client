@@ -1,83 +1,70 @@
-import React, { useState } from 'react';
-import Sidebar from './components/layout/Sidebar';
-import SearchBar from './components/layout/Searchbar';
-import Player from './components/layout/Player';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import Home from './pages/Home';
 import { Music } from 'lucide-react';
 
-function App() {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [activePlaylist, setActivePlaylist] = useState(null);
-  const [currentTrack, setCurrentTrack] = useState({
-    name: 'Example Song',
-    artist: 'Example Artist',
-    duration: '3:45',
-    image: null
-  });
+// Login page component
+const Login = () => {
+  const { login } = useAuth();
 
-  // just to be able to see  
-  const demoPlaylists = [
-    { id: '1', name: 'test' },
-    { id: '2', name: 'test' },
-    { id: '3', name: 'test' },
-    { id: '4', name: 'test' },
-    { id: '5', name: 'test' }
-  ];
-  
-  const handleSearch = (query) => {
-    console.log('Searching for:', query);
-  };
-  
-  const handleCreatePlaylist = () => {
-    console.log('Create new playlist');
-  };
-  
   return (
-    <div className="h-screen flex flex-col bg-neutral-900">
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        <Sidebar 
-          playlists={demoPlaylists}
-          onCreatePlaylist={handleCreatePlaylist}
-          onSelectPlaylist={setActivePlaylist}
-          activePlaylist={activePlaylist}
-        />
-        
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Search Bar */}
-          <SearchBar onSearch={handleSearch} />
-          
-          {/* Content Area */}
-          <div className="flex-1 overflow-y-auto bg-linear-to-b from-neutral-900 to-black p-6">
-            <h2 className="text-white text-3xl font-bold mb-6">Discover Music</h2>
-            
-            {/* Placeholder for track cards and content */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item) => (
-                <div 
-                  key={item}
-                  className="bg-neutral-800 p-4 rounded-lg hover:bg-neutral-700 transition cursor-pointer group"
-                >
-                  <div className="aspect-square bg-gray-700 rounded mb-4 flex items-center justify-center">
-                    <Music className="text-gray-500" size={48} />
-                  </div>
-                  <h3 className="text-white font-semibold mb-1 truncate">Track {item}</h3>
-                  <p className="text-gray-400 text-sm truncate">Artist Name</p>
-                </div>
-              ))}
-            </div>
-          </div>
+    <div className="min-h-screen bg-linear-to-b from-neutral-900 to-black flex items-center justify-center">
+      <div className="text-center">
+        <div className="mb-8 flex justify-center">
+          <Music size={80} className="text-spotify-green" />
+        </div>
+        <h1 className="text-white text-5xl font-bold mb-4">
+          Spotify Music Finder
+        </h1>
+        <p className="text-gray-400 text-lg mb-8 max-w-md mx-auto">
+          Discover similar songs based on BPM, key, and genre using Spotify
+        </p>
+        <button
+          onClick={login}
+          className="bg-spotify-green text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-green-500 transition transform hover:scale-105"
+        >
+          Login with Spotify
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// Protected route wrapper
+const ProtectedRoute = ({ children }) => {
+  const { isLoggedIn, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="animate-spin">
+          <Music size={48} className="text-spotify-green" />
         </div>
       </div>
-      
-      {/* Player */}
-      <Player 
-        currentTrack={currentTrack}
-        isPlaying={isPlaying}
-        onPlayPause={() => setIsPlaying(!isPlaying)}
-        onNext={() => console.log('Next track')}
-        onPrevious={() => console.log('Previous track')}
-      />
-    </div>
+    );
+  }
+
+  return isLoggedIn ? children : <Navigate to="/login" />;
+};
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route 
+            path="/" 
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            } 
+          />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 
