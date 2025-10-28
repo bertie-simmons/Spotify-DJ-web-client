@@ -67,3 +67,33 @@ export const getPlaylist = async (playlistId) => {
 export const getPlaylistTracks = async (playlistId, limit = 100) => {
   return fetchWithAuth(`/playlists/${playlistId}/tracks?limit=${limit}`);
 };
+
+export const createPlaylist = async (userId, name, description = '', isPublic = true) => {
+  return fetchWithAuth(`/users/${userId}/playlists`, {
+    method: 'POST',
+    body: JSON.stringify({
+      name,
+      description,
+      public: isPublic,
+    }),
+  });
+};
+
+export const addTracksToPlaylist = async (playlistId, trackUris) => {
+  return fetchWithAuth(`/playlists/${playlistId}/tracks`, {
+    method: 'POST',
+    body: JSON.stringify({
+      uris: trackUris,
+    }),
+  });
+};
+
+export const removeTracksFromPlaylist = async (playlistId, trackUris) => {
+  return fetchWithAuth(`/playlists/${playlistId}/tracks`, {
+    method: 'DELETE',
+    body: JSON.stringify({
+      tracks: trackUris.map(uri => ({ uri })),
+    }),
+  });
+};
+
