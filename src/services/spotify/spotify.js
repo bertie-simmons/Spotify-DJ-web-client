@@ -26,6 +26,10 @@ const fetchWithAuth = async (endpoint, options = {}) => {
   return response.json();
 };
 
+export const getUserProfile = async (token) => {
+  return fetchWithAuth('/me');
+};
+
 
 
 export const getPlaylists = async (token) => {
