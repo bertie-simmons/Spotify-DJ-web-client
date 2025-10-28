@@ -70,4 +70,29 @@ export const AuthProvider = ({ children }) => {
       logout();
     }
   };
+
+  const login = () => {
+    redirectToSpotifyAuth();
+  };
+
+  const logout = () => {
+    logoutService();
+    setIsLoggedIn(false);
+    setUser(null);
+  };
+
+  const value = {
+    isLoggedIn,
+    loading,
+    user,
+    login,
+    logout,
+    refreshUser: fetchUserProfile
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 }; 
