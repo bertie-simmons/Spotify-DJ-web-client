@@ -15,3 +15,26 @@ export const useAuth = () => {
   }
   return context;
 };
+
+export const AuthProvider = ({ children }) => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+
+  // Check authentication status on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      const authenticated = isAuthenticated();
+      setIsLoggedIn(authenticated);
+
+      if (authenticated) {
+        await fetchUserProfile();
+      }
+
+      setLoading(false);
+    };
+
+    checkAuth();
+  }, []);
+
+  
