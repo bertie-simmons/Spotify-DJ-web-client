@@ -56,13 +56,8 @@ export const searchPlaylists = async (query, limit = 20) => {
   return result.playlists;
 };
 
-
-export const getPlaylists = async (token) => {
-  const res = await fetch('https://api.spotify.com/v1/me/playlists', {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  const data = await res.json();
-  return data.items || [];
+export const getUserPlaylists = async (limit = 100) => {
+  return fetchWithAuth(`/me/playlists?limit=${limit}`);
 };
 
 // bpm, key, energy, danceability, valence
