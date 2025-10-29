@@ -32,3 +32,82 @@ export const areKeysCompatible = (key1, mode1, key2, mode2) => {
 export const areBPMsSimilar = (bpm1, bpm2, tolerance = BPM_TOLERANCE) => {
     return Math.abs(bpm1 - bpm2) <= tolerance;
 };
+
+// find similar tracks based on audio features
+export const findSimilarTracks = async (trackId, tracks) => {
+  try {
+    // get audio features for the target track
+    const targetFeatures = await getAudioFeatures(trackId);
+    
+    if (!targetFeatures) {
+      throw new Error('Could not get audio features for track');
+    }
+
+    // get audio features for all comparison tracks
+    const trackIds = tracks.map(t => t.id);
+    const featuresResponse = await getAudioFeaturesForTracks(trackIds);
+    const allFeatures = featuresResponse.audio_features;
+
+    // calculate similarity scores
+    const similarTracks = tracks.map((track, index) => {
+      const features = allFeatures[index];
+      
+      if (!features) {
+        return { ...track, similarityScore: 0, features: null };
+      }
+
+      let score = 0;
+
+      // BPM similarity (0-30 points)
+      const bpmDiff = Math.abs(features.tempo - targetFeatures.tempo);
+      if (bpmDiff <= 5) score += 30;
+      else if (bpmDiff <= 10) score += 20;
+      else if (bpmDiff <= 20) score += 10;
+
+      // key compatibility (0-25 points)
+      if (areKeysCompatible(features.key, features.mode, targetFeatures.key, targetFeatures.mode)) {
+        score += 25;
+      }
+
+      // energy similarity (0-15 points)
+      const energyDiff = Math.abs(features.energy - targetFeatures.energy);
+      score += (1 - energyDiff) * 15;
+
+      // danceability similarity (0-10 points)
+      const danceabilityDiff = Math.abs(features.danceability - targetFeatures.danceability);
+      score += (1 - danceabilityDiff) * 10;
+
+      // valence (mood) similarity (0-10 points)
+      const valenceDiff = Math.abs(features.valence - targetFeatures.valence);
+      score += (1 - valenceDiff) * 10;
+
+      // acousticness similarity (0-5 points)
+      const acousticnessDiff = Math.abs(features.acousticness - targetFeatures.acousticness);
+      score += (1 - acousticnessDiff) * 5;
+
+      // instrumentalness similarity (0-5 points)
+      const instrumentalnessDiff = Math.abs(features.instrumentalness - targetFeatures.instrumentalness);
+      score += (1 - instrumentalnessDiff) * 5;
+
+      return {
+        ...track,
+        similarityScore: Math.round(score),
+        features: {
+          bpm: Math.round(features.tempo),
+          key: getKeyName(features.key, features.mode),
+          energy: features.energy,
+          danceability: features.danceability,
+          valence: features.valence,
+          acousticness: features.acousticness,
+          instrumentalness: features.instrumentalness,
+        },
+      };
+    });
+
+    // sort by similarity score (highest first)
+    return similarTracks.sort((a, b) => b.similarityScore - a.similarityScore);
+  } catch (error) {
+    console.error('Error finding similar tracks:', error);
+    throw error;
+  }
+};
