@@ -182,3 +182,118 @@ export const getRecommendations = async (params) => {
   const queryParams = new URLSearchParams(params);
   return fetchWithAuth(`/recommendations?${queryParams.toString()}`);
 };
+
+// ======================= PLAYBACK ========================================
+
+export const getPlaybackState = async () => {
+  return fetchWithAuth('/me/player');
+};
+
+export const transferPlayback = async (deviceId, play = true) => {
+  return fetchWithAuth('/me/player', {
+    method: 'PUT',
+    body: JSON.stringify({
+      device_ids: [deviceId],
+      play,
+    }),
+  });
+};
+
+export const play = async (deviceId, contextUri = null, uris = null, offset = null) => {
+  const body = {};
+  if (contextUri) body.context_uri = contextUri;
+  if (uris) body.uris = uris;
+  if (offset) body.offset = offset;
+
+  const endpoint = deviceId ? `/me/player/play?device_id=${deviceId}` : '/me/player/play';
+  
+  return fetchWithAuth(endpoint, {
+    method: 'PUT',
+    body: JSON.stringify(body),
+  });
+};
+
+export const pause = async (deviceId = null) => {
+  const endpoint = deviceId ? `/me/player/pause?device_id=${deviceId}` : '/me/player/pause';
+  return fetchWithAuth(endpoint, {
+    method: 'PUT',
+  });
+};
+
+export const skipToNext = async (deviceId = null) => {
+  const endpoint = deviceId ? `/me/player/next?device_id=${deviceId}` : '/me/player/next';
+  return fetchWithAuth(endpoint, {
+    method: 'POST',
+  });
+};
+
+export const skipToPrevious = async (deviceId = null) => {
+  const endpoint = deviceId ? `/me/player/previous?device_id=${deviceId}` : '/me/player/previous';
+  return fetchWithAuth(endpoint, {
+    method: 'POST',
+  });
+};
+
+export const seek = async (positionMs, deviceId = null) => {
+  const endpoint = deviceId 
+    ? `/me/player/seek?position_ms=${positionMs}&device_id=${deviceId}` 
+    : `/me/player/seek?position_ms=${positionMs}`;
+  
+  return fetchWithAuth(endpoint, {
+    method: 'PUT',
+  });
+};
+
+export const setVolume = async (volumePercent, deviceId = null) => {
+  const endpoint = deviceId 
+    ? `/me/player/volume?volume_percent=${volumePercent}&device_id=${deviceId}` 
+    : `/me/player/volume?volume_percent=${volumePercent}`;
+  
+  return fetchWithAuth(endpoint, {
+    method: 'PUT',
+  });
+};
+
+export const setRepeat = async (state, deviceId = null) => {
+  // state: 'track', 'context', 'off'
+  const endpoint = deviceId 
+    ? `/me/player/repeat?state=${state}&device_id=${deviceId}` 
+    : `/me/player/repeat?state=${state}`;
+  
+  return fetchWithAuth(endpoint, {
+    method: 'PUT',
+  });
+};
+
+export const setShuffle = async (state, deviceId = null) => {
+  // state: true or false
+  const endpoint = deviceId 
+    ? `/me/player/shuffle?state=${state}&device_id=${deviceId}` 
+    : `/me/player/shuffle?state=${state}`;
+  
+  return fetchWithAuth(endpoint, {
+    method: 'PUT',
+  });
+};
+
+export const getAvailableDevices = async () => {
+  return fetchWithAuth('/me/player/devices');
+};
+
+export const getRecentlyPlayed = async (limit = 50) => {
+  return fetchWithAuth(`/me/player/recently-played?limit=${limit}`);
+};
+
+export const getQueue = async () => {
+  return fetchWithAuth('/me/player/queue');
+};
+
+export const addToQueue = async (uri, deviceId = null) => {
+  const endpoint = deviceId 
+    ? `/me/player/queue?uri=${uri}&device_id=${deviceId}` 
+    : `/me/player/queue?uri=${uri}`;
+  
+  return fetchWithAuth(endpoint, {
+    method: 'POST',
+  });
+};
