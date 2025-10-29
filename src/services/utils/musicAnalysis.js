@@ -9,3 +9,21 @@ export const getKeyName = (key, mode) => {
   const modeName = MODES[mode] || '';
   return `${keyName} ${modeName}`;
 };
+
+
+// checks if 2 tracks similar by key
+export const areKeysCompatible = (key1, mode1, key2, mode2) => {
+    // same key and mode
+    if (key1 === key2 && mode1 === mode2) return true;
+
+    // relative keys - maj or min - 3 semitones apart
+    if (mode1 !== mode2) {
+        const diff = Math.abs(key1 - key2);
+    if (diff === 3 || diff === 9) return true; // 3 semitones up or down
+  }
+  
+  // Parallel keys (same root, different mode)
+  if (key1 === key2 && mode1 !== mode2) return true;
+  
+  return false;
+};
