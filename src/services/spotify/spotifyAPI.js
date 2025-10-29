@@ -56,6 +56,8 @@ export const searchPlaylists = async (query, limit = 20) => {
   return result.playlists;
 };
 
+// ==============================  PLAYLISTS  ====================================
+
 export const getUserPlaylists = async (limit = 100) => {
   return fetchWithAuth(`/me/playlists?limit=${limit}`);
 };
@@ -97,3 +99,4 @@ export const removeTracksFromPlaylist = async (playlistId, trackUris) => {
   });
 };
 
+// ==============================  TRACKS  ====================================
