@@ -27,3 +27,8 @@ export const areKeysCompatible = (key1, mode1, key2, mode2) => {
   
   return false;
 };
+
+// checks if bpm are similar
+export const areBPMsSimilar = (bpm1, bpm2, tolerance = BPM_TOLERANCE) => {
+    return Math.abs(bpm1 - bpm2) <= tolerance;
+};
