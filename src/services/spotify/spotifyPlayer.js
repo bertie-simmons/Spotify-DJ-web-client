@@ -87,3 +87,18 @@ const setupPlayer = (accessToken, callbacks, resolve, reject) => {
     }
   });
 };
+
+// get current player instance
+export const getPlayer = () => player;
+
+// get current device ID
+export const getDeviceId = () => deviceId;
+
+// disconnect and cleanup player
+export const disconnectPlayer = () => {
+  if (player) {
+    player.disconnect();
+    player = null;
+    deviceId = null;
+  }
+};
