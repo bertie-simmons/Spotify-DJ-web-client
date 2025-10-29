@@ -130,3 +130,16 @@ export const checkSavedTracks = async (trackIds) => {
   const ids = trackIds.join(',');
   return fetchWithAuth(`/me/tracks/contains?ids=${ids}`);
 };
+
+// ==============================  ALBUMS  ====================================
+
+export const getAlbum = async (albumId) => {
+  return fetchWithAuth(`/albums/${albumId}`);
+};
+
+export const getAlbumTracks = async (albumId, limit = 50) => {
+  return fetchWithAuth(`/albums/${albumId}/tracks?limit=${limit}`);
+};
+
+
+// ==============================  ARTISTS  ====================================
