@@ -27,3 +27,22 @@ const fetchWithAuth = async (endpoint, options = {}) => {
     return response.json();
 };
 
+
+// for single track
+export const getAudioFeatures = async (trackId) => {
+    return fetchWithAuth(`/audio-features/${trackId}`);
+};
+
+// for multiple tracks
+export const getAudioFeaturesForTracks = async (trackIds) => {
+    const idsParam = trackIds.join(',');
+    return fetchWithAuth(`/audio-features?ids=${idsParam}`);
+};
+
+export const getAudioAnalysis = async (trackId) => {
+    return fetchWithAuth(`/audio-analysis/${trackId}`);
+};
+
+export const getAvailableGenreSeeds = async () => {
+    return fetchWithAuth('/recommendations/available-genre-seeds');
+};
