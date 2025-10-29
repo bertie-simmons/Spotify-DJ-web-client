@@ -145,3 +145,42 @@ export const getRecommendationsForTrack = async (trackId, limit = 20) => {
   }
 };
 
+// get recommendations based on multiple seeds (tracks, artists, genres)
+export const getRecommendationsFromSeeds = async ({
+  seedTracks = [],
+  seedArtists = [],
+  seedGenres = [],
+  targetFeatures = {},
+  limit = 20,
+}) => {
+  try {
+    const params = {
+      limit: limit.toString(),
+    };
+
+    // add seeds (max 5 total across all types)
+    if (seedTracks.length > 0) {
+      params.seed_tracks = seedTracks.join(',');
+    }
+    if (seedArtists.length > 0) {
+      params.seed_artists = seedArtists.join(',');
+    }
+    if (seedGenres.length > 0) {
+      params.seed_genres = seedGenres.join(',');
+    }
+
+    // add target features if provided
+    Object.entries(targetFeatures).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        params[`target_${key}`] = value.toString();
+      }
+    });
+
+    const recommendations = await getRecommendations(params);
+    return recommendations.tracks;
+  } catch (error) {
+    console.error('Error getting recommendations from seeds:', error);
+    throw error;
+  }
+};
+
