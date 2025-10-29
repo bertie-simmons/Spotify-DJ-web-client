@@ -141,5 +141,20 @@ export const getAlbumTracks = async (albumId, limit = 50) => {
   return fetchWithAuth(`/albums/${albumId}/tracks?limit=${limit}`);
 };
 
-
 // ==============================  ARTISTS  ====================================
+
+export const getArtist = async (artistId) => {
+  return fetchWithAuth(`/artists/${artistId}`);
+};
+
+export const getArtistTopTracks = async (artistId, market = 'US') => {
+  return fetchWithAuth(`/artists/${artistId}/top-tracks?market=${market}`);
+};
+
+export const getArtistAlbums = async (artistId, limit = 20) => {
+  return fetchWithAuth(`/artists/${artistId}/albums?limit=${limit}`);
+};
+
+export const getRelatedArtists = async (artistId) => {
+  return fetchWithAuth(`/artists/${artistId}/related-artists`);
+};
