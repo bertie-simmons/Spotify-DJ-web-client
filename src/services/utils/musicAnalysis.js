@@ -184,3 +184,42 @@ export const getRecommendationsFromSeeds = async ({
   }
 };
 
+// format track data with audio features
+export const formatTrackWithFeatures = async (track) => {
+  try {
+    const features = await getAudioFeatures(track.id);
+    
+    return {
+      id: track.id,
+      name: track.name,
+      artist: track.artists.map(a => a.name).join(', '),
+      album: track.album.name,
+      albumArt: track.album.images[0]?.url,
+      duration: track.duration_ms,
+      uri: track.uri,
+      bpm: features ? Math.round(features.tempo) : null,
+      key: features ? getKeyName(features.key, features.mode) : null,
+      energy: features?.energy,
+      danceability: features?.danceability,
+      valence: features?.valence,
+      acousticness: features?.acousticness,
+      instrumentalness: features?.instrumentalness,
+      previewUrl: track.preview_url,
+    };
+  } catch (error) {
+    console.error('Error formatting track with features:', error);
+    
+    // return track without features if fetch fails
+    return {
+      id: track.id,
+      name: track.name,
+      artist: track.artists.map(a => a.name).join(', '),
+      album: track.album.name,
+      albumArt: track.album.images[0]?.url,
+      duration: track.duration_ms,
+      uri: track.uri,
+      previewUrl: track.preview_url,
+    };
+  }
+};
+
