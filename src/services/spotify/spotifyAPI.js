@@ -100,3 +100,33 @@ export const removeTracksFromPlaylist = async (playlistId, trackUris) => {
 };
 
 // ==============================  TRACKS  ====================================
+
+export const getTrack = async (trackId) => {
+  return fetchWithAuth(`/tracks/${trackId}`);
+};
+
+export const getTracks = async (trackIds) => {
+  const ids = trackIds.join(',');
+  return fetchWithAuth(`/tracks?ids=${ids}`);
+};
+
+export const getSavedTracks = async (limit = 50, offset = 0) => {
+  return fetchWithAuth(`/me/tracks?limit=${limit}&offset=${offset}`);
+};
+
+export const saveTrack = async (trackId) => {
+  return fetchWithAuth(`/me/tracks?ids=${trackId}`, {
+    method: 'PUT',
+  });
+};
+
+export const removeSavedTrack = async (trackId) => {
+  return fetchWithAuth(`/me/tracks?ids=${trackId}`, {
+    method: 'DELETE',
+  });
+};
+
+export const checkSavedTracks = async (trackIds) => {
+  const ids = trackIds.join(',');
+  return fetchWithAuth(`/me/tracks/contains?ids=${ids}`);
+};
