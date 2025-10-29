@@ -111,3 +111,37 @@ export const findSimilarTracks = async (trackId, tracks) => {
     throw error;
   }
 };
+
+// gets recommendations based on track's audio features
+export const getRecommendationsForTrack = async (trackId, limit = 20) => {
+  try {
+    const features = await getAudioFeatures(trackId);
+    
+    if (!features) {
+      throw new Error('Could not get audio features for track');
+    }
+
+    // use audio features as targets for recommendations
+    const params = {
+      seed_tracks: trackId,
+      limit: limit.toString(),
+      target_tempo: Math.round(features.tempo).toString(),
+      target_energy: features.energy.toFixed(2),
+      target_danceability: features.danceability.toFixed(2),
+      target_valence: features.valence.toFixed(2),
+    };
+
+    // add key if available
+    if (features.key !== -1) {
+      params.target_key = features.key.toString();
+      params.target_mode = features.mode.toString();
+    }
+
+    const recommendations = await getRecommendations(params);
+    return recommendations.tracks;
+  } catch (error) {
+    console.error('Error getting recommendations:', error);
+    throw error;
+  }
+};
+
