@@ -138,3 +138,30 @@ export const playTrack = async (spotifyUri, position = 0) => {
     throw new Error('Failed to start playback');
   }
 };
+
+// play multiple tracks
+export const playTracks = async (trackUris, position = 0) => {
+  if (!deviceId) {
+    throw new Error('No device ID available');
+  }
+
+  const token = await getAccessToken();
+  
+  const body = {
+    uris: trackUris,
+    position_ms: position,
+  };
+
+  const response = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to play tracks');
+  }
+};
