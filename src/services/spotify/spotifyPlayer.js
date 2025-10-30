@@ -214,3 +214,27 @@ export const getCurrentState = async () => {
   return player.getCurrentState();
 };
 
+// Transfer playback to this device
+export const transferPlayback = async () => {
+  if (!deviceId) {
+    throw new Error('No device ID available');
+  }
+
+  const token = await getAccessToken();
+
+  const response = await fetch('https://api.spotify.com/v1/me/player', {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      device_ids: [deviceId],
+      play: false,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to transfer playback');
+  }
+};
