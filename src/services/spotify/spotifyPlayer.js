@@ -165,3 +165,52 @@ export const playTracks = async (trackUris, position = 0) => {
     throw new Error('Failed to play tracks');
   }
 };
+
+// Toggle play/pause
+export const togglePlay = async () => {
+  if (!player) return;
+  return player.togglePlay();
+};
+
+// Resume playback
+export const resume = async () => {
+  if (!player) return;
+  return player.resume();
+};
+
+// Pause playback
+export const pause = async () => {
+  if (!player) return;
+  return player.pause();
+};
+
+// Skip to next track
+export const nextTrack = async () => {
+  if (!player) return;
+  return player.nextTrack();
+};
+
+// Skip to previous track
+export const previousTrack = async () => {
+  if (!player) return;
+  return player.previousTrack();
+};
+
+// Seek to position (ms)
+export const seek = async (positionMs) => {
+  if (!player) return;
+  return player.seek(positionMs);
+};
+
+// Set volume (0-1)
+export const setVolume = async (volume) => {
+  if (!player) return;
+  return player.setVolume(volume);
+};
+
+// Get current playback state
+export const getCurrentState = async () => {
+  if (!player) return null;
+  return player.getCurrentState();
+};
+
