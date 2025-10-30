@@ -102,3 +102,39 @@ export const disconnectPlayer = () => {
     deviceId = null;
   }
 };
+
+export const playTrack = async (spotifyUri, position = 0) => {
+  if (!deviceId){
+    throw new Error('No device ID available. Initialize the player first.');
+  }
+
+  const token = await getAccessToken();
+
+  const body = {
+    device_id: deviceId,
+  };
+
+  // check if its a single track or a context - album/playlist
+  if (spotifyUri.includes('track')) {
+    body.uris = [spotifyUri];
+  } else {
+    body.context_uri = spotifyUri;
+  }
+
+  if (position > 0) {
+    body.position_ms = position;
+  }
+
+  const response = await fetch('https://api.spotify.com/v1/me/player/play', {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to start playback');
+  }
+};
