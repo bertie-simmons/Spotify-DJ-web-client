@@ -17,6 +17,19 @@ export const usePlayback = () => {
     }
   }, [play]);
 
+  // play a list of tracks starting from a specific index
+  const playTrackList = useCallback(async (tracks, startIndex = 0) => {
+    try {
+      const uris = tracks.map(t => t.uri);
+      await playMultiple(uris, startIndex);
+      setQueue(tracks);
+      setCurrentIndex(startIndex);
+    } catch (error) {
+      console.error('Failed to play track list:', error);
+    }
+  }, [playMultiple]);
+
+  
 };
 
 export default usePlayback;
