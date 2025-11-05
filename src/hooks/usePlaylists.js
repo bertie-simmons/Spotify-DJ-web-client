@@ -82,7 +82,32 @@ export const usePlaylists = (userId) => {
     }
   }, []);
 
+  // Get tracks from a playlist
+  const getTracks = useCallback(async (playlistId) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getPlaylistTracks(playlistId);
+      return data.items;
+    } catch (err) {
+      setError(err.message);
+      console.error('Error loading playlist tracks:', err);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
+  return {
+    playlists,
+    loading,
+    error,
+    loadPlaylists,
+    create,
+    addTracks,
+    removeTracks,
+    getTracks,
+  };
 };
 
 export default usePlaylists;
