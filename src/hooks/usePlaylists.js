@@ -29,6 +29,27 @@ export const usePlaylists = (userId) => {
     }
   }, []);
 
+  // Create a new playlist
+  const create = useCallback(async (name, description = '', isPublic = true) => {
+    if (!userId) {
+      throw new Error('User ID is required to create a playlist');
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      const newPlaylist = await createPlaylist(userId, name, description, isPublic);
+      setPlaylists(prev => [newPlaylist, ...prev]);
+      return newPlaylist;
+    } catch (err) {
+      setError(err.message);
+      console.error('Error creating playlist:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
+
   
 };
 
