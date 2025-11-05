@@ -50,7 +50,39 @@ export const usePlaylists = (userId) => {
     }
   }, [userId]);
 
-  
+  // Add tracks to a playlist
+  const addTracks = useCallback(async (playlistId, trackUris) => {
+    try {
+      setLoading(true);
+      setError(null);
+      await addTracksToPlaylist(playlistId, trackUris);
+      return true;
+    } catch (err) {
+      setError(err.message);
+      console.error('Error adding tracks to playlist:', err);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Remove tracks from a playlist
+  const removeTracks = useCallback(async (playlistId, trackUris) => {
+    try {
+      setLoading(true);
+      setError(null);
+      await removeTracksFromPlaylist(playlistId, trackUris);
+      return true;
+    } catch (err) {
+      setError(err.message);
+      console.error('Error removing tracks from playlist:', err);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+
 };
 
 export default usePlaylists;
