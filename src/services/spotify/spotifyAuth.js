@@ -59,6 +59,10 @@ export const redirectToSpotifyAuth = async () => {
 export const exchangeCodeForToken = async (code) => {
   const codeVerifier = localStorage.getItem('code_verifier');
 
+   if (!codeVerifier) {
+    throw new Error('No code verifier found');
+  }
+  
   const params = new URLSearchParams({
     client_id: CLIENT_ID,
     grant_type: 'authorization_code',
