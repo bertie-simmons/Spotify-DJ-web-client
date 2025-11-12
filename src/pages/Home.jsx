@@ -11,7 +11,7 @@ import { usePlayer } from '../context/PlayerContext';
 import { 
   getUserPlaylists, 
   getFeaturedPlaylists,
-  searchTracks,
+  getSavedTracks,
   getPlaylistTracks,
 } from '../services/spotify/spotifyAPI';
 import { getRecommendationsForTrack } from '../services/utils/musicAnalysis';
