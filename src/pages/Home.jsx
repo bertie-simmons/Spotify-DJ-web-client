@@ -41,33 +41,39 @@ const Home = () => {
   }, []);
 
   const loadInitialData = async () => {
-    try {
-      setLoading(true);
-      
-      // load user playlists
-      const playlistsData = await getUserPlaylists(50);
-      setUserPlaylists(playlistsData.items);
+  try {
+    setLoading(true);
+    
+    // load user playlists
+    const playlistsData = await getUserPlaylists(50);
+    setUserPlaylists(playlistsData.items);
 
-      // load featured playlists and extract tracks
-      const featured = await getFeaturedPlaylists(5);
-      const allTracks = [];
-      
-      for (const playlist of featured.playlists.items) {
-        const tracksData = await getPlaylistTracks(playlist.id);
-        const tracks = tracksData.items
-          .filter(item => item.track)
-          .map(item => formatTrack(item.track))
-          .slice(0, 10);
-        allTracks.push(...tracks);
-      }
-      
-      setFeaturedTracks(allTracks);
-    } catch (error) {
-      console.error('Error loading initial data:', error);
-    } finally {
-      setLoading(false);
+    // load user's saved tracks instead of featured playlists
+    const savedTracksData = await getSavedTracks(20);
+    const tracks = savedTracksData.items
+      .filter(item => item.track)
+      .map(item => formatTrack(item.track));
+    
+    setFeaturedTracks(tracks);
+  } catch (error) {
+    console.error('Error loading initial data:', error);
+
+    // if saved tracks fails, try getting recommendations from popular seeds
+    try {
+      const recommendations = await getRecommendationsFromSeeds({
+        seedGenres: ['pop', 'rock', 'hip-hop'],
+        limit: 20,
+      });
+      const tracks = recommendations.map(formatTrack);
+      setFeaturedTracks(tracks);
+    } catch (recError) {
+      console.error('Error loading recommendations:', recError);
+      setFeaturedTracks([]);
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   // handle search
   const handleSearch = async (query) => {
