@@ -54,3 +54,16 @@ export const getRecommendationsBySeeds = async ({ seedTracks = [], limit = 20 })
   return fetchReccoBeats(`/recommendations?${params.toString()}`);
 };
 
+
+/**
+ * Search for tracks with audio features
+ */
+export const searchTracksWithFeatures = async (query, limit = 20) => {
+  const params = new URLSearchParams({
+    q: query,
+    limit: limit.toString(),
+  });
+  
+  return fetchReccoBeats(`/search?${params.toString()}`);
+};
+
