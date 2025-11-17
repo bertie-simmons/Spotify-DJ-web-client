@@ -41,3 +41,16 @@ export const getMultipleTracksAnalysis = async (spotifyTrackIds) => {
 export const getSimilarTracks = async (spotifyTrackId, limit = 20) => {
   return fetchReccoBeats(`/track/${spotifyTrackId}/similar?limit=${limit}`);
 };
+
+/**
+ * Gets recommendations based on seed tracks
+ */
+export const getRecommendationsBySeeds = async ({ seedTracks = [], limit = 20 }) => {
+  const params = new URLSearchParams({
+    seed_tracks: seedTracks.join(','),
+    limit: limit.toString(),
+  });
+  
+  return fetchReccoBeats(`/recommendations?${params.toString()}`);
+};
+
