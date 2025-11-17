@@ -92,3 +92,8 @@ export const getTracksByKey = async (key, mode = 'major', limit = 20) => {
   
   return fetchReccoBeats(`/tracks/by-key?${params.toString()}`);
 };
+
+
+export const getPlaylistAnalysis = async (spotifyPlaylistId) => {
+  return fetchReccoBeats(`/playlist/${spotifyPlaylistId}`);
+};
