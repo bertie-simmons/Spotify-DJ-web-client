@@ -140,3 +140,63 @@ export const calculateSimilarity = (track1Features, track2Features) => {
   return Math.round(score);
 };
 
+export const formatTrackWithFeatures = async (spotifyTrack) => {
+  try {
+    const features = await getTrackWithFeatures(spotifyTrack.id);
+    
+    return {
+      id: spotifyTrack.id,
+      name: spotifyTrack.name,
+      artist: spotifyTrack.artists.map(a => a.name).join(', '),
+      artistId: spotifyTrack.artists[0]?.id,
+      album: spotifyTrack.album.name,
+      albumArt: spotifyTrack.album.images[0]?.url,
+      duration: spotifyTrack.duration_ms,
+      uri: spotifyTrack.uri,
+      previewUrl: spotifyTrack.preview_url,
+      ...features,
+    };
+  } catch (error) {
+    console.error('Error formatting track with features:', error);
+    return {
+      id: spotifyTrack.id,
+      name: spotifyTrack.name,
+      artist: spotifyTrack.artists.map(a => a.name).join(', '),
+      artistId: spotifyTrack.artists[0]?.id,
+      album: spotifyTrack.album.name,
+      albumArt: spotifyTrack.album.images[0]?.url,
+      duration: spotifyTrack.duration_ms,
+      uri: spotifyTrack.uri,
+      previewUrl: spotifyTrack.preview_url,
+    };
+  }
+};
+
+/**
+ * enriches track with features
+ */
+export const enrichTracksWithFeatures = async (tracks) => {
+  try {
+    const trackIds = tracks.map(t => t.id);
+    const analysisData = await getMultipleTracksAnalysis(trackIds);
+    
+    return tracks.map((track, index) => {
+      const features = analysisData.tracks[index];
+      if (!features) return track;
+      
+      return {
+        ...track,
+        bpm: features.tempo ? Math.round(features.tempo) : null,
+        key: getKeyName(features.key, features.mode),
+        keyNumber: features.key,
+        mode: features.mode,
+        energy: features.energy,
+        danceability: features.danceability,
+        valence: features.valence,
+      };
+    });
+  } catch (error) {
+    console.error('Error enriching tracks with features:', error);
+    return tracks;
+  }
+};
