@@ -56,3 +56,40 @@ export const getTrackWithFeatures = async (spotifyTrackId) => {
   }
 };
 
+export const findSimilarTracks = async (spotifyTrackId, limit = 20) => {
+  try {
+    const similar = await getSimilarTracks(spotifyTrackId, limit);
+    
+    // get Spotify track data
+    const spotifyIds = similar.tracks.map(t => t.spotify_id);
+    const spotifyTracks = await getTracks(spotifyIds);
+    
+    // combine Spotify data with ReccoBeats features
+    return spotifyTracks.tracks.map((track, index) => {
+      const features = similar.tracks[index];
+      return {
+        id: track.id,
+        name: track.name,
+        artist: track.artists.map(a => a.name).join(', '),
+        artistId: track.artists[0]?.id,
+        album: track.album.name,
+        albumArt: track.album.images[0]?.url,
+        duration: track.duration_ms,
+        uri: track.uri,
+        previewUrl: track.preview_url,
+        bpm: features.tempo ? Math.round(features.tempo) : null,
+        key: getKeyName(features.key, features.mode),
+        keyNumber: features.key,
+        mode: features.mode,
+        energy: features.energy,
+        danceability: features.danceability,
+        valence: features.valence,
+        similarityScore: features.similarity_score || 0,
+      };
+    });
+  } catch (error) {
+    console.error('Error finding similar tracks:', error);
+    throw error;
+  }
+};
+
