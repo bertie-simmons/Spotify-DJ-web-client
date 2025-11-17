@@ -28,3 +28,31 @@ export const areKeysCompatible = (key1, mode1, key2, mode2) => {
   return false;
 };
 
+/** checks if 2 bpms are similar */
+export const areBPMsSimilar = (bpm1, bpm2, tolerance = BPM_TOLERANCE) => {
+  return Math.abs(bpm1 - bpm2) <= tolerance;
+};
+
+export const getTrackWithFeatures = async (spotifyTrackId) => {
+  try {
+    const analysis = await getTrackAnalysis(spotifyTrackId);
+    return {
+      id: spotifyTrackId,
+      bpm: analysis.tempo ? Math.round(analysis.tempo) : null,
+      key: getKeyName(analysis.key, analysis.mode),
+      keyNumber: analysis.key,
+      mode: analysis.mode,
+      energy: analysis.energy,
+      danceability: analysis.danceability,
+      valence: analysis.valence,
+      acousticness: analysis.acousticness,
+      instrumentalness: analysis.instrumentalness,
+      loudness: analysis.loudness,
+      speechiness: analysis.speechiness,
+    };
+  } catch (error) {
+    console.error('Error getting track features:', error);
+    return null;
+  }
+};
+
