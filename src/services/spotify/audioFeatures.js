@@ -1,48 +1,51 @@
-import { getAccessToken } from './spotifyAuth';
 
-const SPOTIFY_API_BASE = 'https://api.spotify.com/v1';
+// This is depreciated now :(
 
-// helper function to make authenticated requests
-const fetchWithAuth = async (endpoint, options = {}) => {
-    const token = await getAccessToken(); 
+// import { getAccessToken } from './spotifyAuth';
 
-    if (!token) {
-        throw new Error('No access token available');
-    }
+// const SPOTIFY_API_BASE = 'https://api.spotify.com/v1';
 
-    const response = await fetch(`${SPOTIFY_API_BASE}${endpoint}`, {
-        ...options,
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            ...options.headers,
-        },
-    });
+// // helper function to make authenticated requests
+// const fetchWithAuth = async (endpoint, options = {}) => {
+//     const token = await getAccessToken(); 
 
-    if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.error?.message || 'API request failed');
-    }
+//     if (!token) {
+//         throw new Error('No access token available');
+//     }
 
-    return response.json();
-};
+//     const response = await fetch(`${SPOTIFY_API_BASE}${endpoint}`, {
+//         ...options,
+//         headers: {
+//             'Authorization': `Bearer ${token}`,
+//             'Content-Type': 'application/json',
+//             ...options.headers,
+//         },
+//     });
+
+//     if (!response.ok) {
+//         const error = await response.json().catch(() => ({}));
+//         throw new Error(error.error?.message || 'API request failed');
+//     }
+
+//     return response.json();
+// };
 
 
-// for single track
-export const getAudioFeatures = async (trackId) => {
-    return fetchWithAuth(`/audio-features/${trackId}`);
-};
+// // for single track
+// export const getAudioFeatures = async (trackId) => {
+//     return fetchWithAuth(`/audio-features/${trackId}`);
+// };
 
-// for multiple tracks
-export const getAudioFeaturesForTracks = async (trackIds) => {
-    const idsParam = trackIds.join(',');
-    return fetchWithAuth(`/audio-features?ids=${idsParam}`);
-};
+// // for multiple tracks
+// export const getAudioFeaturesForTracks = async (trackIds) => {
+//     const idsParam = trackIds.join(',');
+//     return fetchWithAuth(`/audio-features?ids=${idsParam}`);
+// };
 
-export const getAudioAnalysis = async (trackId) => {
-    return fetchWithAuth(`/audio-analysis/${trackId}`);
-};
+// export const getAudioAnalysis = async (trackId) => {
+//     return fetchWithAuth(`/audio-analysis/${trackId}`);
+// };
 
-export const getAvailableGenreSeeds = async () => {
-    return fetchWithAuth('/recommendations/available-genre-seeds');
-};
+// export const getAvailableGenreSeeds = async () => {
+//     return fetchWithAuth('/recommendations/available-genre-seeds');
+// };
