@@ -67,3 +67,28 @@ export const searchTracksWithFeatures = async (query, limit = 20) => {
   return fetchReccoBeats(`/search?${params.toString()}`);
 };
 
+/**
+ * Search for tracks by BPM
+ */
+export const getTracksByBPM = async (minBpm, maxBpm, limit = 20) => {
+  const params = new URLSearchParams({
+    min_bpm: minBpm.toString(),
+    max_bpm: maxBpm.toString(),
+    limit: limit.toString(),
+  });
+  
+  return fetchReccoBeats(`/tracks/by-bpm?${params.toString()}`);
+};
+
+/**
+ * Search for tracks by key
+ */
+export const getTracksByKey = async (key, mode = 'major', limit = 20) => {
+  const params = new URLSearchParams({
+    key: key.toString(),
+    mode: mode,
+    limit: limit.toString(),
+  });
+  
+  return fetchReccoBeats(`/tracks/by-key?${params.toString()}`);
+};
