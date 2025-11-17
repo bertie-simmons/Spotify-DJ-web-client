@@ -93,3 +93,50 @@ export const findSimilarTracks = async (spotifyTrackId, limit = 20) => {
   }
 };
 
+/**
+ * calculates similarity scores between 2 tracks which is used to find reccomendations
+ */
+export const calculateSimilarity = (track1Features, track2Features) => {
+  let score = 0;
+
+  // BPM similarity (0-30 points)
+  if (track1Features.bpm && track2Features.bpm) {
+    const bpmDiff = Math.abs(track1Features.bpm - track2Features.bpm);
+    if (bpmDiff <= 5) score += 30;
+    else if (bpmDiff <= 10) score += 20;
+    else if (bpmDiff <= 20) score += 10;
+  }
+
+  // Key compatibility (0-25 points)
+  if (track1Features.keyNumber !== null && track2Features.keyNumber !== null) {
+    if (areKeysCompatible(
+      track1Features.keyNumber, 
+      track1Features.mode, 
+      track2Features.keyNumber, 
+      track2Features.mode
+    )) {
+      score += 25;
+    }
+  }
+
+  // Energy similarity (0-15 points)
+  if (track1Features.energy !== null && track2Features.energy !== null) {
+    const energyDiff = Math.abs(track1Features.energy - track2Features.energy);
+    score += (1 - energyDiff) * 15;
+  }
+
+  // Danceability similarity (0-10 points)
+  if (track1Features.danceability !== null && track2Features.danceability !== null) {
+    const danceabilityDiff = Math.abs(track1Features.danceability - track2Features.danceability);
+    score += (1 - danceabilityDiff) * 10;
+  }
+
+  // Valence similarity (0-10 points)
+  if (track1Features.valence !== null && track2Features.valence !== null) {
+    const valenceDiff = Math.abs(track1Features.valence - track2Features.valence);
+    score += (1 - valenceDiff) * 10;
+  }
+
+  return Math.round(score);
+};
+
