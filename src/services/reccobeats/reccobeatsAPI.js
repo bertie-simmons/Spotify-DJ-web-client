@@ -19,3 +19,25 @@ const fetchReccoBeats = async (endpoint, options = {}) => {
 
   return response.json();
 };
+
+/**
+ * Get track analysis
+ */
+export const getTrackAnalysis = async (spotifyTrackId) => {
+  return fetchReccoBeats(`/track/${spotifyTrackId}`);
+};
+
+/**
+ * Get multiple track analysis
+ */
+export const getMultipleTracksAnalysis = async (spotifyTrackIds) => {
+  const ids = spotifyTrackIds.join(',');
+  return fetchReccoBeats(`/tracks?ids=${ids}`);
+};
+
+/**
+ * Get similar tracks based on audio features
+ */
+export const getSimilarTracks = async (spotifyTrackId, limit = 20) => {
+  return fetchReccoBeats(`/track/${spotifyTrackId}/similar?limit=${limit}`);
+};
