@@ -10,11 +10,11 @@ import { usePlayback } from '../hooks/usePlayback';
 import { usePlayer } from '../context/PlayerContext';
 import { 
   getUserPlaylists, 
-  getFeaturedPlaylists,
   getSavedTracks,
+  searchTracks,
   getPlaylistTracks,
 } from '../services/spotify/spotifyAPI';
-import { getRecommendationsForTrack } from '../services/utils/musicAnalysis';
+import { findSimilarTracks, enrichTracksWithFeatures } from '../services/utils/musicAnalysis';
 import { formatTrack } from '../services/utils/formatters';
 import { Music } from 'lucide-react';
 
@@ -35,47 +35,37 @@ const Home = () => {
   const [similarTracks, setSimilarTracks] = useState([]);
   const [loadingSimilar, setLoadingSimilar] = useState(false);
 
-  // load user playlists and featured content 
+  // Load user playlists and saved tracks on mount
   useEffect(() => {
     loadInitialData();
   }, []);
 
   const loadInitialData = async () => {
-  try {
-    setLoading(true);
-    
-    // load user playlists
-    const playlistsData = await getUserPlaylists(50);
-    setUserPlaylists(playlistsData.items);
-
-    // load user's saved tracks instead of featured playlists
-    const savedTracksData = await getSavedTracks(20);
-    const tracks = savedTracksData.items
-      .filter(item => item.track)
-      .map(item => formatTrack(item.track));
-    
-    setFeaturedTracks(tracks);
-  } catch (error) {
-    console.error('Error loading initial data:', error);
-
-    // if saved tracks fails, try getting recommendations from popular seeds
     try {
-      const recommendations = await getRecommendationsFromSeeds({
-        seedGenres: ['pop', 'rock', 'hip-hop'],
-        limit: 20,
-      });
-      const tracks = recommendations.map(formatTrack);
-      setFeaturedTracks(tracks);
-    } catch (recError) {
-      console.error('Error loading recommendations:', recError);
-      setFeaturedTracks([]);
-    }
-  } finally {
-    setLoading(false);
-  }
-};
+      setLoading(true);
+      
+      // Load user playlists
+      const playlistsData = await getUserPlaylists(50);
+      setUserPlaylists(playlistsData.items);
 
-  // handle search
+      // Load user's saved tracks
+      const savedTracksData = await getSavedTracks(20);
+      const tracks = savedTracksData.items
+        .filter(item => item.track)
+        .map(item => formatTrack(item.track));
+      
+      // Enrich with audio features from ReccoBeats
+      const enrichedTracks = await enrichTracksWithFeatures(tracks);
+      setFeaturedTracks(enrichedTracks);
+    } catch (error) {
+      console.error('Error loading initial data:', error);
+      setFeaturedTracks([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle search
   const handleSearch = async (query) => {
     if (!query.trim()) {
       setSearchResults([]);
@@ -87,13 +77,16 @@ const Home = () => {
       setIsSearching(true);
       const results = await searchTracks(query, 50);
       const formattedTracks = results.items.map(formatTrack);
-      setSearchResults(formattedTracks);
+      
+      // Enrich search results with audio features
+      const enrichedTracks = await enrichTracksWithFeatures(formattedTracks);
+      setSearchResults(enrichedTracks);
     } catch (error) {
       console.error('Error searching:', error);
     }
   };
 
-  // handle playlist selection
+  // Handle playlist selection
   const handleSelectPlaylist = async (playlistId) => {
     try {
       setActivePlaylist(playlistId);
@@ -105,19 +98,20 @@ const Home = () => {
         .filter(item => item.track)
         .map(item => formatTrack(item.track));
       
-      setPlaylistTracks(tracks);
+      // Enrich playlist tracks with audio features
+      const enrichedTracks = await enrichTracksWithFeatures(tracks);
+      setPlaylistTracks(enrichedTracks);
     } catch (error) {
       console.error('Error loading playlist:', error);
     }
   };
 
-  // handle create playlist
+  // Handle create playlist
   const handleCreatePlaylist = async () => {
-    // This will be implemented with a modal
     console.log('Create playlist - TODO: Add modal');
   };
 
-  // handle track play
+  // Handle track play
   const handlePlayTrack = async (track) => {
     try {
       await playTrack(track);
@@ -126,7 +120,7 @@ const Home = () => {
     }
   };
 
-  // handle play from list
+  // Handle play from list
   const handlePlayFromList = async (tracks, track) => {
     try {
       const startIndex = tracks.findIndex(t => t.id === track.id);
@@ -136,26 +130,25 @@ const Home = () => {
     }
   };
 
-  // handle show similar tracks
+  // Handle show similar tracks using ReccoBeats
   const handleShowSimilar = async (track) => {
     try {
       setLoadingSimilar(true);
       setSelectedTrackForSimilar(track);
       setShowSimilar(true);
       
-      // get recommendations based on the track
-      const recommendations = await getRecommendationsForTrack(track.id, 20);
-      const formattedRecommendations = recommendations.map(formatTrack);
-      
-      setSimilarTracks(formattedRecommendations);
+      // Get similar tracks from ReccoBeats
+      const similar = await findSimilarTracks(track.id, 20);
+      setSimilarTracks(similar);
     } catch (error) {
       console.error('Error finding similar tracks:', error);
+      setSimilarTracks([]);
     } finally {
       setLoadingSimilar(false);
     }
   };
 
-  // determine what to display
+  // Determine what to display
   const getDisplayContent = () => {
     if (showSimilar && selectedTrackForSimilar) {
       return (
@@ -253,7 +246,7 @@ const Home = () => {
         <div className="flex-1 flex flex-col overflow-hidden">
           <SearchBar onSearch={handleSearch} />
           
-          <div className="flex-1 overflow-y-auto bg-linear-to-b from-neutral-900 to-black p-6">
+          <div className="flex-1 overflow-y-auto bg-gradient-to-b from-neutral-900 to-black p-6">
             {loadingSimilar ? (
               <div className="flex items-center justify-center h-64">
                 <div className="text-center">

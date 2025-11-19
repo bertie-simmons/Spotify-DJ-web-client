@@ -1,225 +1,202 @@
-import { getAudioFeatures, getAudioFeaturesForTracks } from '../spotify/audioFeatures';
-import { getRecommendations } from '../spotify/spotifyAPI';
-import { MUSICAL_KEYS, MODES, BPM_TOLERANCE, KEY_TOLERANCE } from '../../lib/constants';
+import { getTrackAnalysis, getSimilarTracks, getMultipleTracksAnalysis } from '../reccobeats/reccobeatsAPI';
+import { getTracks } from '../spotify/spotifyAPI';
+import { MUSICAL_KEYS, MODES, BPM_TOLERANCE } from '../../lib/constants';
 
-// convert Spotify key number to musical key name
+/**
+ * convert ReccoBeats key number to musical key name
+ */
 export const getKeyName = (key, mode) => {
-  if (key === -1) return 'Unknown';
+  if (key === -1 || key === null) return 'Unknown';
   const keyName = MUSICAL_KEYS[key] || 'Unknown';
-  const modeName = MODES[mode] || '';
+  const modeName = mode === 1 ? 'Major' : mode === 0 ? 'Minor' : '';
   return `${keyName} ${modeName}`;
 };
 
-
-// checks if 2 tracks similar by key
+/**
+ * checks if keys are compatible between 2 tracks
+ */
 export const areKeysCompatible = (key1, mode1, key2, mode2) => {
-    // same key and mode
-    if (key1 === key2 && mode1 === mode2) return true;
-
-    // relative keys - maj or min - 3 semitones apart
-    if (mode1 !== mode2) {
-        const diff = Math.abs(key1 - key2);
-    if (diff === 3 || diff === 9) return true; // 3 semitones up or down
+  if (key1 === key2 && mode1 === mode2) return true;
+  
+  if (mode1 !== mode2) {
+    const diff = Math.abs(key1 - key2);
+    if (diff === 3 || diff === 9) return true;
   }
   
-  // Parallel keys (same root, different mode)
   if (key1 === key2 && mode1 !== mode2) return true;
   
   return false;
 };
 
-// checks if bpm are similar
+/** checks if 2 bpms are similar */
 export const areBPMsSimilar = (bpm1, bpm2, tolerance = BPM_TOLERANCE) => {
-    return Math.abs(bpm1 - bpm2) <= tolerance;
+  return Math.abs(bpm1 - bpm2) <= tolerance;
 };
 
-// find similar tracks based on audio features
-export const findSimilarTracks = async (trackId, tracks) => {
+export const getTrackWithFeatures = async (spotifyTrackId) => {
   try {
-    // get audio features for the target track
-    const targetFeatures = await getAudioFeatures(trackId);
+    const analysis = await getTrackAnalysis(spotifyTrackId);
+    return {
+      id: spotifyTrackId,
+      bpm: analysis.tempo ? Math.round(analysis.tempo) : null,
+      key: getKeyName(analysis.key, analysis.mode),
+      keyNumber: analysis.key,
+      mode: analysis.mode,
+      energy: analysis.energy,
+      danceability: analysis.danceability,
+      valence: analysis.valence,
+      acousticness: analysis.acousticness,
+      instrumentalness: analysis.instrumentalness,
+      loudness: analysis.loudness,
+      speechiness: analysis.speechiness,
+    };
+  } catch (error) {
+    console.error('Error getting track features:', error);
+    return null;
+  }
+};
+
+export const findSimilarTracks = async (spotifyTrackId, limit = 20) => {
+  try {
+    const similar = await getSimilarTracks(spotifyTrackId, limit);
     
-    if (!targetFeatures) {
-      throw new Error('Could not get audio features for track');
-    }
-
-    // get audio features for all comparison tracks
-    const trackIds = tracks.map(t => t.id);
-    const featuresResponse = await getAudioFeaturesForTracks(trackIds);
-    const allFeatures = featuresResponse.audio_features;
-
-    // calculate similarity scores
-    const similarTracks = tracks.map((track, index) => {
-      const features = allFeatures[index];
-      
-      if (!features) {
-        return { ...track, similarityScore: 0, features: null };
-      }
-
-      let score = 0;
-
-      // BPM similarity (0-30 points)
-      const bpmDiff = Math.abs(features.tempo - targetFeatures.tempo);
-      if (bpmDiff <= 5) score += 30;
-      else if (bpmDiff <= 10) score += 20;
-      else if (bpmDiff <= 20) score += 10;
-
-      // key compatibility (0-25 points)
-      if (areKeysCompatible(features.key, features.mode, targetFeatures.key, targetFeatures.mode)) {
-        score += 25;
-      }
-
-      // energy similarity (0-15 points)
-      const energyDiff = Math.abs(features.energy - targetFeatures.energy);
-      score += (1 - energyDiff) * 15;
-
-      // danceability similarity (0-10 points)
-      const danceabilityDiff = Math.abs(features.danceability - targetFeatures.danceability);
-      score += (1 - danceabilityDiff) * 10;
-
-      // valence (mood) similarity (0-10 points)
-      const valenceDiff = Math.abs(features.valence - targetFeatures.valence);
-      score += (1 - valenceDiff) * 10;
-
-      // acousticness similarity (0-5 points)
-      const acousticnessDiff = Math.abs(features.acousticness - targetFeatures.acousticness);
-      score += (1 - acousticnessDiff) * 5;
-
-      // instrumentalness similarity (0-5 points)
-      const instrumentalnessDiff = Math.abs(features.instrumentalness - targetFeatures.instrumentalness);
-      score += (1 - instrumentalnessDiff) * 5;
-
+    // get Spotify track data
+    const spotifyIds = similar.tracks.map(t => t.spotify_id);
+    const spotifyTracks = await getTracks(spotifyIds);
+    
+    // combine Spotify data with ReccoBeats features
+    return spotifyTracks.tracks.map((track, index) => {
+      const features = similar.tracks[index];
       return {
-        ...track,
-        similarityScore: Math.round(score),
-        features: {
-          bpm: Math.round(features.tempo),
-          key: getKeyName(features.key, features.mode),
-          energy: features.energy,
-          danceability: features.danceability,
-          valence: features.valence,
-          acousticness: features.acousticness,
-          instrumentalness: features.instrumentalness,
-        },
+        id: track.id,
+        name: track.name,
+        artist: track.artists.map(a => a.name).join(', '),
+        artistId: track.artists[0]?.id,
+        album: track.album.name,
+        albumArt: track.album.images[0]?.url,
+        duration: track.duration_ms,
+        uri: track.uri,
+        previewUrl: track.preview_url,
+        bpm: features.tempo ? Math.round(features.tempo) : null,
+        key: getKeyName(features.key, features.mode),
+        keyNumber: features.key,
+        mode: features.mode,
+        energy: features.energy,
+        danceability: features.danceability,
+        valence: features.valence,
+        similarityScore: features.similarity_score || 0,
       };
     });
-
-    // sort by similarity score (highest first)
-    return similarTracks.sort((a, b) => b.similarityScore - a.similarityScore);
   } catch (error) {
     console.error('Error finding similar tracks:', error);
     throw error;
   }
 };
 
-// gets recommendations based on track's audio features
-export const getRecommendationsForTrack = async (trackId, limit = 20) => {
-  try {
-    const features = await getAudioFeatures(trackId);
-    
-    if (!features) {
-      throw new Error('Could not get audio features for track');
-    }
+/**
+ * calculates similarity scores between 2 tracks which is used to find reccomendations
+ */
+export const calculateSimilarity = (track1Features, track2Features) => {
+  let score = 0;
 
-    // use audio features as targets for recommendations
-    const params = {
-      seed_tracks: trackId,
-      limit: limit.toString(),
-      target_tempo: Math.round(features.tempo).toString(),
-      target_energy: features.energy.toFixed(2),
-      target_danceability: features.danceability.toFixed(2),
-      target_valence: features.valence.toFixed(2),
-    };
-
-    // add key if available
-    if (features.key !== -1) {
-      params.target_key = features.key.toString();
-      params.target_mode = features.mode.toString();
-    }
-
-    const recommendations = await getRecommendations(params);
-    return recommendations.tracks;
-  } catch (error) {
-    console.error('Error getting recommendations:', error);
-    throw error;
+  // BPM similarity (0-30 points)
+  if (track1Features.bpm && track2Features.bpm) {
+    const bpmDiff = Math.abs(track1Features.bpm - track2Features.bpm);
+    if (bpmDiff <= 5) score += 30;
+    else if (bpmDiff <= 10) score += 20;
+    else if (bpmDiff <= 20) score += 10;
   }
+
+  // Key compatibility (0-25 points)
+  if (track1Features.keyNumber !== null && track2Features.keyNumber !== null) {
+    if (areKeysCompatible(
+      track1Features.keyNumber, 
+      track1Features.mode, 
+      track2Features.keyNumber, 
+      track2Features.mode
+    )) {
+      score += 25;
+    }
+  }
+
+  // Energy similarity (0-15 points)
+  if (track1Features.energy !== null && track2Features.energy !== null) {
+    const energyDiff = Math.abs(track1Features.energy - track2Features.energy);
+    score += (1 - energyDiff) * 15;
+  }
+
+  // Danceability similarity (0-10 points)
+  if (track1Features.danceability !== null && track2Features.danceability !== null) {
+    const danceabilityDiff = Math.abs(track1Features.danceability - track2Features.danceability);
+    score += (1 - danceabilityDiff) * 10;
+  }
+
+  // Valence similarity (0-10 points)
+  if (track1Features.valence !== null && track2Features.valence !== null) {
+    const valenceDiff = Math.abs(track1Features.valence - track2Features.valence);
+    score += (1 - valenceDiff) * 10;
+  }
+
+  return Math.round(score);
 };
 
-// get recommendations based on multiple seeds (tracks, artists, genres)
-export const getRecommendationsFromSeeds = async ({
-  seedTracks = [],
-  seedArtists = [],
-  seedGenres = [],
-  targetFeatures = {},
-  limit = 20,
-}) => {
+export const formatTrackWithFeatures = async (spotifyTrack) => {
   try {
-    const params = {
-      limit: limit.toString(),
-    };
-
-    // add seeds (max 5 total across all types)
-    if (seedTracks.length > 0) {
-      params.seed_tracks = seedTracks.join(',');
-    }
-    if (seedArtists.length > 0) {
-      params.seed_artists = seedArtists.join(',');
-    }
-    if (seedGenres.length > 0) {
-      params.seed_genres = seedGenres.join(',');
-    }
-
-    // add target features if provided
-    Object.entries(targetFeatures).forEach(([key, value]) => {
-      if (value !== null && value !== undefined) {
-        params[`target_${key}`] = value.toString();
-      }
-    });
-
-    const recommendations = await getRecommendations(params);
-    return recommendations.tracks;
-  } catch (error) {
-    console.error('Error getting recommendations from seeds:', error);
-    throw error;
-  }
-};
-
-// format track data with audio features
-export const formatTrackWithFeatures = async (track) => {
-  try {
-    const features = await getAudioFeatures(track.id);
+    const features = await getTrackWithFeatures(spotifyTrack.id);
     
     return {
-      id: track.id,
-      name: track.name,
-      artist: track.artists.map(a => a.name).join(', '),
-      album: track.album.name,
-      albumArt: track.album.images[0]?.url,
-      duration: track.duration_ms,
-      uri: track.uri,
-      bpm: features ? Math.round(features.tempo) : null,
-      key: features ? getKeyName(features.key, features.mode) : null,
-      energy: features?.energy,
-      danceability: features?.danceability,
-      valence: features?.valence,
-      acousticness: features?.acousticness,
-      instrumentalness: features?.instrumentalness,
-      previewUrl: track.preview_url,
+      id: spotifyTrack.id,
+      name: spotifyTrack.name,
+      artist: spotifyTrack.artists.map(a => a.name).join(', '),
+      artistId: spotifyTrack.artists[0]?.id,
+      album: spotifyTrack.album.name,
+      albumArt: spotifyTrack.album.images[0]?.url,
+      duration: spotifyTrack.duration_ms,
+      uri: spotifyTrack.uri,
+      previewUrl: spotifyTrack.preview_url,
+      ...features,
     };
   } catch (error) {
     console.error('Error formatting track with features:', error);
-    
-    // return track without features if fetch fails
     return {
-      id: track.id,
-      name: track.name,
-      artist: track.artists.map(a => a.name).join(', '),
-      album: track.album.name,
-      albumArt: track.album.images[0]?.url,
-      duration: track.duration_ms,
-      uri: track.uri,
-      previewUrl: track.preview_url,
+      id: spotifyTrack.id,
+      name: spotifyTrack.name,
+      artist: spotifyTrack.artists.map(a => a.name).join(', '),
+      artistId: spotifyTrack.artists[0]?.id,
+      album: spotifyTrack.album.name,
+      albumArt: spotifyTrack.album.images[0]?.url,
+      duration: spotifyTrack.duration_ms,
+      uri: spotifyTrack.uri,
+      previewUrl: spotifyTrack.preview_url,
     };
   }
 };
 
+/**
+ * enriches track with features
+ */
+export const enrichTracksWithFeatures = async (tracks) => {
+  try {
+    const trackIds = tracks.map(t => t.id);
+    const analysisData = await getMultipleTracksAnalysis(trackIds);
+    
+    return tracks.map((track, index) => {
+      const features = analysisData.tracks[index];
+      if (!features) return track;
+      
+      return {
+        ...track,
+        bpm: features.tempo ? Math.round(features.tempo) : null,
+        key: getKeyName(features.key, features.mode),
+        keyNumber: features.key,
+        mode: features.mode,
+        energy: features.energy,
+        danceability: features.danceability,
+        valence: features.valence,
+      };
+    });
+  } catch (error) {
+    console.error('Error enriching tracks with features:', error);
+    return tracks;
+  }
+};

@@ -155,15 +155,7 @@ export const getArtistAlbums = async (artistId, limit = 20) => {
   return fetchWithAuth(`/artists/${artistId}/albums?limit=${limit}`);
 };
 
-export const getRelatedArtists = async (artistId) => {
-  return fetchWithAuth(`/artists/${artistId}/related-artists`);
-};
-
 // ======================== BROWSE =================================
-
-export const getFeaturedPlaylists = async (limit = 20) => {
-  return fetchWithAuth(`/browse/featured-playlists?limit=${limit}`);
-};
 
 export const getNewReleases = async (limit = 20) => {
   return fetchWithAuth(`/browse/new-releases?limit=${limit}`);
@@ -171,16 +163,6 @@ export const getNewReleases = async (limit = 20) => {
 
 export const getCategories = async (limit = 50) => {
   return fetchWithAuth(`/browse/categories?limit=${limit}`);
-};
-
-export const getCategoryPlaylists = async (categoryId, limit = 20) => {
-  return fetchWithAuth(`/browse/categories/${categoryId}/playlists?limit=${limit}`);
-};
-
-export const getRecommendations = async (params) => {
-  // params can include seed_artists, seed_tracks, seed_genres, target_*, min_*, max_*
-  const queryParams = new URLSearchParams(params);
-  return fetchWithAuth(`/recommendations?${queryParams.toString()}`);
 };
 
 // ======================= PLAYBACK ========================================
