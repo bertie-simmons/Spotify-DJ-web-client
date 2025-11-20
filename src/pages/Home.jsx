@@ -235,7 +235,7 @@ const Home = () => {
 
   return (
     <div className="h-screen flex flex-col bg-neutral-900">
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden pt-20">
         <Sidebar 
           playlists={userPlaylists}
           onCreatePlaylist={handleCreatePlaylist}
