@@ -25,7 +25,7 @@ const Sidebar = ({ playlists, onCreatePlaylist, onSelectPlaylist, activePlaylist
             </button>
           </div>
           
-          <div className="space-y-1 max-h-96 overflow-y-auto">
+          <div className="space-y-1 max-h-[68vh] overflow-y-auto">
             {playlists.map((playlist) => (
               <button
                 key={playlist.id}
