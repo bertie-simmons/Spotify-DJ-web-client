@@ -12,7 +12,7 @@ const SearchBar = ({ onSearch }) => {
   
   return (
     <div className="bg-neutral-900 p-4">
-      <div className="max-w-md">
+      <div className="max-w-md mx-auto">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
           <input

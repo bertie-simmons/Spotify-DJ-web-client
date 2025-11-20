@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/layout/Sidebar';
-import SearchBar from '../components/layout/SearchBar';
+import SearchBar from '../components/layout/Searchbar';
 import Player from '../components/layout/Player';
 import TrackCard from '../components/track/TrackCard';
 import TrackList from '../components/track/TrackList';
@@ -242,10 +242,8 @@ const Home = () => {
           onSelectPlaylist={handleSelectPlaylist}
           activePlaylist={activePlaylist}
         />
-        
         <div className="flex-1 flex flex-col overflow-hidden">
           <SearchBar onSearch={handleSearch} />
-          
           <div className="flex-1 overflow-y-auto bg-gradient-to-b from-neutral-900 to-black p-6">
             {loadingSimilar ? (
               <div className="flex items-center justify-center h-64">
