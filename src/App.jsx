@@ -5,6 +5,7 @@ import { PlayerProvider } from './context/PlayerContext';
 import Home from './pages/Home';
 import Callback from './pages/Callback';
 import { Music } from 'lucide-react';
+import logo from './assets/Spotify_Primary_Logo_RGB_Green.png';
 
 // Login page component
 const Login = () => {
@@ -14,7 +15,11 @@ const Login = () => {
     <div className="min-h-screen bg-gradient-to-b from-neutral-900 to-black flex items-center justify-center">
       <div className="text-center">
         <div className="mb-8 flex justify-center">
-          <Music size={80} className="text-spotify-green" />
+          <img
+            src={logo}
+            alt="Logo"
+            className="w-10 h-auto object-contain"
+          />
         </div>
         <h1 className="text-white text-5xl font-bold mb-4">
           Music Discovery
@@ -44,7 +49,11 @@ const ProtectedRoute = ({ children }) => {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="animate-spin">
-          <Music size={48} className="text-spotify-green" />
+          <img
+            src={logo}
+            alt="Logo"
+            className="w-10 h-auto object-contain"
+          />
         </div>
       </div>
     );

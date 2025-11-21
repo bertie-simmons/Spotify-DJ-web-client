@@ -17,12 +17,12 @@ import {
 import { findSimilarTracks, enrichTracksWithFeatures } from '../services/utils/musicAnalysis';
 import { formatTrack } from '../services/utils/formatters';
 import { Music } from 'lucide-react';
+import logo from '../assets/Spotify_Primary_Logo_RGB_Green.png';
 
 const Home = () => {
   const { user } = useAuth();
   const { playTrack, playTrackList } = usePlayback();
   const { currentTrack, isPaused } = usePlayer();
-  
   const [userPlaylists, setUserPlaylists] = useState([]);
   const [featuredTracks, setFeaturedTracks] = useState([]);
   const [activePlaylist, setActivePlaylist] = useState(null);
@@ -148,7 +148,6 @@ const Home = () => {
     }
   };
 
-  // Determine what to display
   const getDisplayContent = () => {
     if (showSimilar && selectedTrackForSimilar) {
       return (
@@ -225,7 +224,11 @@ const Home = () => {
       <div className="h-screen flex items-center justify-center bg-black">
         <div className="text-center">
           <div className="animate-spin mb-4 flex justify-center">
-            <Music size={48} className="text-spotify-green" />
+            <img
+              src={logo}
+              alt="Logo"
+              className="w-10 h-auto object-contain"
+            />
           </div>
           <p className="text-white">Loading your music...</p>
         </div>
