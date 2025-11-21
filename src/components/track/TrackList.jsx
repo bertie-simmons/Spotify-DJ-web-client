@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, Pause, Music, Clock, TrendingUp } from 'lucide-react';
+import { Play, Pause, Music, Clock, Ellipsis } from 'lucide-react';
 
 const TrackList = ({ tracks, currentTrack, isPlaying, onPlay, onShowSimilar }) => {
   const formatDuration = (ms) => {
@@ -16,7 +16,7 @@ const TrackList = ({ tracks, currentTrack, isPlaying, onPlay, onShowSimilar }) =
         <div className="col-span-5">Title</div>
         <div className="col-span-3">Album</div>
         <div className="col-span-2">BPM / Key</div>
-        <div className="col-span-1 flex justify-end">
+        <div className="col-span-1 flex">
           <Clock size={16} />
         </div>
       </div>
@@ -90,21 +90,22 @@ const TrackList = ({ tracks, currentTrack, isPlaying, onPlay, onShowSimilar }) =
               <div className="col-span-2 flex items-center gap-2 text-gray-400 text-sm">
                 {track.bpm && <span>{track.bpm}</span>}
                 {track.key && <span>• {track.key}</span>}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onShowSimilar(track);
-                  }}
-                  className="ml-auto opacity-0 group-hover:opacity-100 text-spotify-green hover:text-green-400 transition"
-                  title="Find similar tracks"
-                >
-                  <TrendingUp size={16} />
-                </button>
               </div>
 
               {/* duration */}
               <div className="col-span-1 flex items-center justify-end text-gray-400 text-sm">
                 {formatDuration(track.duration)}
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onShowSimilar(track);
+                  }}
+                  className="ml-auto opacity-50 group-hover:opacity-100 hover:text-green-400 transition"
+                  title="Find similar tracks"
+                >
+                  <Ellipsis size={16} />
+                </button>
               </div>
             </div>
           );
