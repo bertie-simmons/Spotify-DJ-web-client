@@ -205,7 +205,7 @@ const Home = () => {
           <p className="text-gray-400">Discover music based on BPM, key, and genre</p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-4">
           {featuredTracks.map((track) => (
             <TrackCard
               key={track.id}
