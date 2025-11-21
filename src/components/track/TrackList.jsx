@@ -29,7 +29,7 @@ const TrackList = ({ tracks, currentTrack, isPlaying, onPlay, onShowSimilar }) =
           return (
             <div
               key={track.id}
-              className={`grid grid-cols-12 gap-4 px-4 py-3 rounded-lg hover:bg-neutral-800 transition group cursor-pointer ${
+              className={`grid grid-cols-12 gap-4 px-4 py-2 rounded-lg hover:bg-neutral-800 transition group cursor-pointer ${
                 isCurrentTrack ? 'bg-neutral-800' : ''
               }`}
               onClick={() => onPlay(track)}
