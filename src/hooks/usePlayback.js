@@ -6,7 +6,7 @@ export const usePlayback = () => {
   const [queue, setQueue] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // play a single track
+  /** Plays a single track */
   const playTrack = useCallback(async (track) => {
     try {
       await play(track.uri);
@@ -17,7 +17,7 @@ export const usePlayback = () => {
     }
   }, [play]);
 
-  // play a list of tracks starting from a specific index
+  /** Plays a single track and adds others to queue */
   const playTrackList = useCallback(async (tracks, startIndex = 0) => {
     try {
       const uris = tracks.map(t => t.uri);
@@ -29,7 +29,7 @@ export const usePlayback = () => {
     }
   }, [playMultiple]);
 
-  // Play next track in queue
+  /** Plays next track in queue */
   const playNext = useCallback(async () => {
     if (currentIndex < queue.length - 1) {
       await next();
@@ -37,7 +37,7 @@ export const usePlayback = () => {
     }
   }, [next, currentIndex, queue.length]);
 
-  // Play previous track in queue
+  /** Plays previous track in queue */
   const playPrevious = useCallback(async () => {
     if (currentIndex > 0) {
       await previous();
@@ -45,12 +45,12 @@ export const usePlayback = () => {
     }
   }, [previous, currentIndex]);
 
-  // Add track to queue
+  /** add track to queue */
   const addToQueue = useCallback((track) => {
     setQueue(prev => [...prev, track]);
   }, []);
 
-  // Clear queue
+  /** Clear queue */
   const clearQueue = useCallback(() => {
     setQueue([]);
     setCurrentIndex(0);

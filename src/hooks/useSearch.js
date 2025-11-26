@@ -10,7 +10,7 @@ export const useSearch = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Search all types
+  /** Search all types - tracks, artists, playlists */
   const searchAll = useCallback(async (query, limit = 20) => {
     if (!query.trim()) {
       setResults({ tracks: [], artists: [], playlists: [] });
@@ -38,7 +38,7 @@ export const useSearch = () => {
     }
   }, []);
 
-  // Search tracks only
+  /** Search tracks only */
   const searchTracksOnly = useCallback(async (query, limit = 20) => {
     if (!query.trim()) {
       setResults(prev => ({ ...prev, tracks: [] }));
@@ -60,7 +60,7 @@ export const useSearch = () => {
     }
   }, []);
 
-  // Search artists only
+  /** Search for artists only */
   const searchArtistsOnly = useCallback(async (query, limit = 20) => {
     if (!query.trim()) {
       setResults(prev => ({ ...prev, artists: [] }));
@@ -82,7 +82,7 @@ export const useSearch = () => {
     }
   }, []);
 
-  // Search playlists only
+  /** Search for playlists only */
   const searchPlaylistsOnly = useCallback(async (query, limit = 20) => {
     if (!query.trim()) {
       setResults(prev => ({ ...prev, playlists: [] }));
@@ -104,7 +104,7 @@ export const useSearch = () => {
     }
   }, []);
 
-  // Clear results
+  /** Clear search results */
   const clearResults = useCallback(() => {
     setResults({ tracks: [], artists: [], playlists: [] });
     setError(null);

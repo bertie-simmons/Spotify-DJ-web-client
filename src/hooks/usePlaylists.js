@@ -12,7 +12,7 @@ export const usePlaylists = (userId) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Load all user playlists
+  /** Load all user playlists */
   const loadPlaylists = useCallback(async () => {
     try {
       setLoading(true);
@@ -29,7 +29,7 @@ export const usePlaylists = (userId) => {
     }
   }, []);
 
-  // Create a new playlist
+  /** Create playlist */
   const create = useCallback(async (name, description = '', isPublic = true) => {
     if (!userId) {
       throw new Error('User ID is required to create a playlist');
@@ -50,7 +50,7 @@ export const usePlaylists = (userId) => {
     }
   }, [userId]);
 
-  // Add tracks to a playlist
+  /** Add tracks to a playlist */
   const addTracks = useCallback(async (playlistId, trackUris) => {
     try {
       setLoading(true);
@@ -66,7 +66,7 @@ export const usePlaylists = (userId) => {
     }
   }, []);
 
-  // Remove tracks from a playlist
+  /** Remove tracks from a playlist */
   const removeTracks = useCallback(async (playlistId, trackUris) => {
     try {
       setLoading(true);
@@ -82,7 +82,7 @@ export const usePlaylists = (userId) => {
     }
   }, []);
 
-  // Get tracks from a playlist
+  /** Get tracks from a playlist */
   const getTracks = useCallback(async (playlistId) => {
     try {
       setLoading(true);
