@@ -52,5 +52,28 @@ export const NavigationProvider = ({ children }) => {
     }
   }, [history]);
 
-  
+  // check if we can go back/forward
+  const canGoBack = currentIndex > 0;
+  const canGoForward = currentIndex < history.length - 1;
+
+  // get current view
+  const currentView = history[currentIndex];
+
+  const value = {
+    history,
+    currentIndex,
+    currentView,
+    navigate,
+    goBack,
+    goForward,
+    goHome,
+    canGoBack,
+    canGoForward,
+  };
+
+  return (
+    <NavigationContext.Provider value={value}>
+      {children}
+    </NavigationContext.Provider>
+  );
 };
