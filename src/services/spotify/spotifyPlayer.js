@@ -3,7 +3,7 @@ import { getAccessToken } from './spotifyAuth';
 let player = null;
 let deviceId = null;
 
-// initialize Spotify Web Playback SDK
+/** Initializes Spotify Web Playback SDK */
 export const initializePlayer = (accessToken, callbacks = {}) => {
   return new Promise((resolve, reject) => {
     // check if SDK is already loaded
@@ -88,13 +88,13 @@ const setupPlayer = (accessToken, callbacks, resolve, reject) => {
   });
 };
 
-// get current player instance
+/** Gets current player instance */
 export const getPlayer = () => player;
 
-// get current device ID
+/** Gets current device ID */
 export const getDeviceId = () => deviceId;
 
-// disconnect and cleanup player
+/** Disconnect and cleanup player */
 export const disconnectPlayer = () => {
   if (player) {
     player.disconnect();
@@ -103,6 +103,7 @@ export const disconnectPlayer = () => {
   }
 };
 
+/** Plays a track given its uri */
 export const playTrack = async (spotifyUri, position = 0) => {
   if (!deviceId){
     throw new Error('No device ID available. Initialize the player first.');
@@ -139,7 +140,7 @@ export const playTrack = async (spotifyUri, position = 0) => {
   }
 };
 
-// play multiple tracks
+/** Plays multiple tracks by playing the inital track and setting the rest in a queue */
 export const playTracks = async (trackUris, position = 0) => {
   if (!deviceId) {
     throw new Error('No device ID available');
@@ -166,55 +167,55 @@ export const playTracks = async (trackUris, position = 0) => {
   }
 };
 
-// Toggle play/pause
+/** Toggle play and pause */
 export const togglePlay = async () => {
   if (!player) return;
   return player.togglePlay();
 };
 
-// Resume playback
+/** Toggle resume */
 export const resume = async () => {
   if (!player) return;
   return player.resume();
 };
 
-// Pause playback
+/** Toggle pause */
 export const pause = async () => {
   if (!player) return;
   return player.pause();
 };
 
-// Skip to next track
+/** Skip to next track */
 export const nextTrack = async () => {
   if (!player) return;
   return player.nextTrack();
 };
 
-// Skip to previous track
+/** Skip to previous track */
 export const previousTrack = async () => {
   if (!player) return;
   return player.previousTrack();
 };
 
-// Seek to position (ms)
+/** Seek to position (ms) */
 export const seek = async (positionMs) => {
   if (!player) return;
   return player.seek(positionMs);
 };
 
-// Set volume (0-1)
+/** Set volume (0-1) */
 export const setVolume = async (volume) => {
   if (!player) return;
   return player.setVolume(volume);
 };
 
-// Get current playback state
+/** Get current playback state */
 export const getCurrentState = async () => {
   if (!player) return null;
   return player.getCurrentState();
 };
 
-// Transfer playback to this device
+/** Transfer playback to this device */
 export const transferPlayback = async () => {
   if (!deviceId) {
     throw new Error('No device ID available');

@@ -5,19 +5,19 @@ const SCOPES = 'streaming user-read-email user-read-private user-library-read us
 const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
 const TOKEN_ENDPOINT = 'https://accounts.spotify.com/api/token';
 
-// generate random string for state parameter
+/** Generate random string for state parameter */
 const generateRandomString = (length) => {
   const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   const values = crypto.getRandomValues(new Uint8Array(length));
   return values.reduce((acc, x) => acc + possible[x % possible.length], '');
 };
 
-// generate code verifier for PKCE
+/** Generate code verifier for PKCE */
 const generateCodeVerifier = () => {
   return generateRandomString(64);
 };
 
-// generate code challenge from verifier
+/** Generate code challenge from verifier */
 const generateCodeChallenge = async (verifier) => {
   const encoder = new TextEncoder();
   const data = encoder.encode(verifier);
@@ -32,7 +32,7 @@ const generateCodeChallenge = async (verifier) => {
     .replace(/\//g, '_');
 };
 
-// redirect user to Spotify authorization
+/** Redirects user to Spotify authorization */
 export const redirectToSpotifyAuth = async () => {
   const codeVerifier = generateCodeVerifier();
   const codeChallenge = await generateCodeChallenge(codeVerifier);
@@ -55,7 +55,7 @@ export const redirectToSpotifyAuth = async () => {
   window.location.href = `${AUTH_ENDPOINT}?${params.toString()}`;
 };
 
-// exchange authorization code for access token
+/** Exchanges authorization code for access token */
 export const exchangeCodeForToken = async (code) => {
   const codeVerifier = localStorage.getItem('code_verifier');
 
@@ -102,12 +102,12 @@ export const exchangeCodeForToken = async (code) => {
   }
 };
 
-// get access token
+/** Gets access token from local storage */
 export const getAccessToken = () => {
   return localStorage.getItem('access_token');
 };
 
-// logout user
+/** logsout the user */
 export const logout = () => {
   localStorage.removeItem('access_token');
   localStorage.removeItem('token_expires_at');
@@ -115,7 +115,7 @@ export const logout = () => {
   localStorage.removeItem('auth_state');
 };
 
-// check if user is authenticated
+/** Checks if the user is authenticated */
 export const isAuthenticated = () => {
   const accessToken = localStorage.getItem('access_token');
   const expiresAt = localStorage.getItem('token_expires_at');
