@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/layout/Sidebar';
-import SearchBar from '../components/layout/SearchBar';
+import SearchBar from '../components/layout/Searchbar';
 import Player from '../components/layout/Player';
 import TrackCard from '../components/track/TrackCard';
 import TrackList from '../components/track/TrackList';
@@ -17,12 +17,12 @@ import {
 import { findSimilarTracks, enrichTracksWithFeatures } from '../services/utils/musicAnalysis';
 import { formatTrack } from '../services/utils/formatters';
 import { Music } from 'lucide-react';
+import logo from '../assets/Spotify_Primary_Logo_RGB_Green.png';
 
 const Home = () => {
   const { user } = useAuth();
   const { playTrack, playTrackList } = usePlayback();
   const { currentTrack, isPaused } = usePlayer();
-  
   const [userPlaylists, setUserPlaylists] = useState([]);
   const [featuredTracks, setFeaturedTracks] = useState([]);
   const [activePlaylist, setActivePlaylist] = useState(null);
@@ -148,7 +148,6 @@ const Home = () => {
     }
   };
 
-  // Determine what to display
   const getDisplayContent = () => {
     if (showSimilar && selectedTrackForSimilar) {
       return (
@@ -205,7 +204,7 @@ const Home = () => {
           <p className="text-gray-400">Discover music based on BPM, key, and genre</p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-4">
           {featuredTracks.map((track) => (
             <TrackCard
               key={track.id}
@@ -225,7 +224,11 @@ const Home = () => {
       <div className="h-screen flex items-center justify-center bg-black">
         <div className="text-center">
           <div className="animate-spin mb-4 flex justify-center">
-            <Music size={48} className="text-spotify-green" />
+            <img
+              src={logo}
+              alt="Logo"
+              className="w-10 h-auto object-contain"
+            />
           </div>
           <p className="text-white">Loading your music...</p>
         </div>
@@ -235,17 +238,15 @@ const Home = () => {
 
   return (
     <div className="h-screen flex flex-col bg-neutral-900">
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden pt-20">
         <Sidebar 
           playlists={userPlaylists}
           onCreatePlaylist={handleCreatePlaylist}
           onSelectPlaylist={handleSelectPlaylist}
           activePlaylist={activePlaylist}
         />
-        
         <div className="flex-1 flex flex-col overflow-hidden">
           <SearchBar onSearch={handleSearch} />
-          
           <div className="flex-1 overflow-y-auto bg-gradient-to-b from-neutral-900 to-black p-6">
             {loadingSimilar ? (
               <div className="flex items-center justify-center h-64">

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search } from 'lucide-react';
+import logo from '../../assets/Spotify_Primary_Logo_RGB_Green.png';
 
 const SearchBar = ({ onSearch }) => {
   const [query, setQuery] = useState('');
@@ -10,11 +11,27 @@ const SearchBar = ({ onSearch }) => {
     }
   };
   
-  return (
-    <div className="bg-neutral-900 p-4">
-      <div className="max-w-md">
+return (
+  <div className="fixed top-0 left-0 w-full bg-neutral-900 p-4 z-50 shadow-lg">
+
+    <div className="flex items-center justify-between w-full">
+      
+      {/* logo */}
+      <div className="flex item-center">
+          <img
+            src={logo}
+            alt="Logo"
+            className="w-10 h-auto object-contain"
+          />
+      </div>
+
+      {/* searchbar */}
+      <div className="relative max-w-xl w-full mx-auto">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          <Search
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            size={20}
+          />
           <input
             type="text"
             value={query}
@@ -26,7 +43,9 @@ const SearchBar = ({ onSearch }) => {
         </div>
       </div>
     </div>
-  );
+  </div>
+);
+
 };
 
 export default SearchBar;

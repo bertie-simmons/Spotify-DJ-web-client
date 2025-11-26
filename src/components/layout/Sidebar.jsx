@@ -3,20 +3,13 @@ import { Home, Plus, Music } from 'lucide-react';
 
 const Sidebar = ({ playlists, onCreatePlaylist, onSelectPlaylist, activePlaylist }) => {
   return (
-    <div className="w-64 bg-black h-full flex flex-col p-6">
-      <div className="mb-8">
-        <h1 className="text-white text-2xl font-bold">Spotify Music Finder</h1>
-      </div>
+    <div className="w-64 bg-black h-full flex flex-col p-4 rounded-lg">
       
       <nav className="flex-1">
-        <button className="flex items-center gap-4 text-gray-300 hover:text-white w-full p-3 rounded-lg hover:bg-gray-800 transition mb-2">
-          <Home size={24} />
-          <span className="font-semibold">Home</span>
-        </button>
         
-        <div className="mt-8 mb-4">
+        <div className="mb-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-gray-400 text-sm font-semibold uppercase">Your Playlists</h2>
+            <h2 className="text-gray-400 text-sm font-semibold uppercase">Your Library</h2>
             <button 
               onClick={onCreatePlaylist}
               className="text-gray-400 hover:text-white transition"
@@ -25,7 +18,7 @@ const Sidebar = ({ playlists, onCreatePlaylist, onSelectPlaylist, activePlaylist
             </button>
           </div>
           
-          <div className="space-y-1 max-h-96 overflow-y-auto">
+          <div className="space-y-1 max-h-[78vh] overflow-y-auto">
             {playlists.map((playlist) => (
               <button
                 key={playlist.id}
