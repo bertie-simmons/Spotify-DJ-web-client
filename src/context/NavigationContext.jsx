@@ -39,5 +39,18 @@ export const NavigationProvider = ({ children }) => {
       setCurrentIndex(prev => prev + 1);
     }
   }, [currentIndex, history.length]);
+
+  // navigate to home
+  const goHome = useCallback(() => {
+    const homeIndex = history.findIndex(item => item.type === 'home');
+    if (homeIndex !== -1) {
+      setCurrentIndex(homeIndex);
+    } else {
+      // if home not in history, add it and navigate to it
+      setHistory(prev => [...prev, { type: 'home' }]);
+      setCurrentIndex(history.length);
+    }
+  }, [history]);
+
   
 };
