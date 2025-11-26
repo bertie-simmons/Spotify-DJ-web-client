@@ -12,3 +12,18 @@ export const useNavigation = () => {
 };
 
 
+export const NavigationProvider = ({ children }) => {
+  const [history, setHistory] = useState([{ type: 'home' }]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // navigate to a new view
+  const navigate = useCallback((view) => {
+    setHistory(prev => {
+      // remove any forward history when navigating to a new view
+      const newHistory = prev.slice(0, currentIndex + 1);
+      return [...newHistory, view];
+    });
+    setCurrentIndex(prev => prev + 1);
+  }, [currentIndex]);
+
+};
