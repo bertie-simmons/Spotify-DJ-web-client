@@ -26,4 +26,18 @@ export const NavigationProvider = ({ children }) => {
     setCurrentIndex(prev => prev + 1);
   }, [currentIndex]);
 
+  // navigate back
+  const goBack = useCallback(() => {
+    if (currentIndex > 0) {
+      setCurrentIndex(prev => prev - 1);
+    }
+  }, [currentIndex]);
+
+  // navigate forward
+  const goForward = useCallback(() => {
+    if (currentIndex < history.length - 1) {
+      setCurrentIndex(prev => prev + 1);
+    }
+  }, [currentIndex, history.length]);
+  
 };
