@@ -1,4 +1,4 @@
-// Format duration from milliseconds to MM:SS
+/** Format duration from milliseconds to MM:SS */
 export const formatDuration = (ms) => {
   if (!ms) return '0:00';
   const minutes = Math.floor(ms / 60000);
@@ -6,7 +6,7 @@ export const formatDuration = (ms) => {
   return `${minutes}:${seconds.padStart(2, '0')}`;
 };
 
-// Format large numbers - followers, plays
+/** Format large numbers - followers, plays */
 export const formatNumber = (num) => {
   if (num >= 1000000) {
     return (num / 1000000).toFixed(1) + 'M';
@@ -17,7 +17,7 @@ export const formatNumber = (num) => {
   return num.toString();
 };
 
-// Format track for display
+/** Format track for display */
 export const formatTrack = (track) => {
   return {
     id: track.id,
@@ -31,7 +31,7 @@ export const formatTrack = (track) => {
   };
 };
 
-// Format playlist for display
+/** Format playlist for display */
 export const formatPlaylist = (playlist) => {
   return {
     id: playlist.id,
@@ -45,7 +45,7 @@ export const formatPlaylist = (playlist) => {
   };
 };
 
-// Format artist for display
+/** Format artist for display */
 export const formatArtist = (artist) => {
   return {
     id: artist.id,
@@ -58,7 +58,7 @@ export const formatArtist = (artist) => {
   };
 };
 
-// Extract track ID from Spotify URI
+/** Extract track ID from Spotify URI */
 export const extractTrackId = (uri) => {
   if (!uri) return null;
   if (uri.startsWith('spotify:track:')) {
@@ -67,7 +67,7 @@ export const extractTrackId = (uri) => {
   return uri;
 };
 
-// Convert track IDs to Spotify URIs
+/** Convert track IDs to Spotify URIs */
 export const toSpotifyUri = (id, type = 'track') => {
   return `spotify:${type}:${id}`;
 };
