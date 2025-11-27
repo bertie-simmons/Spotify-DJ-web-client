@@ -34,7 +34,7 @@ const SearchBar = ({ onSearch }) => {
           />
         </div>
 
-        {/* Navigation buttons */}
+        {/* navigation buttons */}
         <NavigationButtons />
 
         {/* searchbar */}
@@ -55,7 +55,7 @@ const SearchBar = ({ onSearch }) => {
           </div>
         </div>
 
-        {/* User Profile & Logout */}
+        {/* logout */}
         <div className="relative shrink-0">
           <button
             onClick={() => setShowDropdown(!showDropdown)}
@@ -77,7 +77,7 @@ const SearchBar = ({ onSearch }) => {
             </span>
           </button>
 
-          {/* Dropdown Menu */}
+          {/* dropdown menu */}
           {showDropdown && (
             <>
               <div 

@@ -5,10 +5,8 @@ import { useNavigation } from '../../context/NavigationContext';
 const NavigationButtons = () => {
   const { goBack, goForward, goHome, canGoBack, canGoForward, currentView } = useNavigation();
 
-  const isOnHome = currentView?.type === 'home';
-
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-3 ml-2">
       {/* back Button */}
       <button
         onClick={goBack}
@@ -20,7 +18,7 @@ const NavigationButtons = () => {
         }`}
         title="Go back"
       >
-        <ChevronLeft size={20} />
+        <ChevronLeft size={25} />
       </button>
 
       {/* forward Button */}
@@ -34,19 +32,17 @@ const NavigationButtons = () => {
         }`}
         title="Go forward"
       >
-        <ChevronRight size={20} />
+        <ChevronRight size={25} />
       </button>
 
       {/* home Button */}
-      {!isOnHome && (
         <button
           onClick={goHome}
-          className="p-2 rounded-full bg-black bg-opacity-70 text-white hover:bg-opacity-80 transition ml-2"
+          className="p-2 rounded-full bg-black bg-opacity-70 text-white hover:bg-opacity-80 transition"
           title="Go home"
         >
-          <Home size={20} />
+          <Home size={25} />
         </button>
-      )}
     </div>
   );
 };
