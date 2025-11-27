@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Search } from 'lucide-react';
 import logo from '../../assets/Spotify_Primary_Logo_RGB_Green.png';
+import NavigationButtons from './NavigationButtons';
 
 const SearchBar = ({ onSearch }) => {
   const [query, setQuery] = useState('');
@@ -25,6 +26,9 @@ return (
           />
       </div>
 
+      {/* Navigation buttons */}
+      <NavigationButtons />
+
       {/* searchbar */}
       <div className="relative max-w-xl w-full mx-auto">
         <div className="relative">
@@ -42,6 +46,7 @@ return (
           />
         </div>
       </div>
+      <div className="w-10 shrink-0"></div>
     </div>
   </div>
 );

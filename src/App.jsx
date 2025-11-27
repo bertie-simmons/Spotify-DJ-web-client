@@ -2,9 +2,9 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { PlayerProvider } from './context/PlayerContext';
+import { NavigationProvider } from './context/NavigationContext';
 import Home from './pages/Home';
 import Callback from './pages/Callback';
-import { Music } from 'lucide-react';
 import logo from './assets/Spotify_Primary_Logo_RGB_Green.png';
 
 // Login page component
@@ -66,20 +66,22 @@ function App() {
   return (
     <AuthProvider>
       <PlayerProvider>
-        <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/callback" element={<Callback />} />
-            <Route 
-              path="/" 
-              element={
-                <ProtectedRoute>
-                  <Home />
-                </ProtectedRoute>
-              } 
-            />
-          </Routes>
-        </Router>
+        <NavigationProvider>
+          <Router>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/callback" element={<Callback />} />
+              <Route 
+                path="/" 
+                element={
+                  <ProtectedRoute>
+                    <Home />
+                  </ProtectedRoute>
+                } 
+              />
+            </Routes>
+          </Router>
+        </NavigationProvider>
       </PlayerProvider>
     </AuthProvider>
   );
