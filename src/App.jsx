@@ -14,11 +14,11 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-neutral-900 to-black flex items-center justify-center">
       <div className="text-center">
-        <div className="mb-8 flex justify-center">
+        <div className="mb-9 flex justify-center">
           <img
             src={logo}
             alt="Logo"
-            className="w-10 h-auto object-contain"
+            className="w-20 object-contain"
           />
         </div>
         <h1 className="text-white text-5xl font-bold mb-4">
