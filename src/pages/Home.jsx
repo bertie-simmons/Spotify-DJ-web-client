@@ -8,6 +8,7 @@ import SimilarTracks from '../components/track/SimilarTracks';
 import { useAuth } from '../context/AuthContext';
 import { usePlayback } from '../hooks/usePlayback';
 import { usePlayer } from '../context/PlayerContext';
+import { useNavigation } from '../context/NavigationContext';
 import { 
   getUserPlaylists, 
   getSavedTracks,
@@ -23,6 +24,8 @@ const Home = () => {
   const { user } = useAuth();
   const { playTrack, playTrackList } = usePlayback();
   const { currentTrack, isPaused } = usePlayer();
+  const { currentView, navigate } = useNavigation();
+  
   const [userPlaylists, setUserPlaylists] = useState([]);
   const [featuredTracks, setFeaturedTracks] = useState([]);
   const [activePlaylist, setActivePlaylist] = useState(null);
@@ -39,6 +42,34 @@ const Home = () => {
   useEffect(() => {
     loadInitialData();
   }, []);
+
+  // Handle navigation changes
+  useEffect(() => {
+    if (!currentView) return;
+
+    switch (currentView.type) {
+      case 'home':
+        setIsSearching(false);
+        setShowSimilar(false);
+        setActivePlaylist(null);
+        break;
+      
+      case 'playlist':
+        handleSelectPlaylist(currentView.playlistId, false);
+        break;
+      
+      case 'search':
+        handleSearch(currentView.query, false);
+        break;
+      
+      case 'similar':
+        handleShowSimilar(currentView.track, false);
+        break;
+      
+      default:
+        break;
+    }
+  }, [currentView]);
 
   const loadInitialData = async () => {
     try {
@@ -66,7 +97,7 @@ const Home = () => {
   };
 
   // Handle search
-  const handleSearch = async (query) => {
+  const handleSearch = async (query, addToHistory = true) => {
     if (!query.trim()) {
       setSearchResults([]);
       setIsSearching(false);
@@ -75,19 +106,26 @@ const Home = () => {
 
     try {
       setIsSearching(true);
+      setShowSimilar(false);
+      setActivePlaylist(null);
+      
       const results = await searchTracks(query, 50);
       const formattedTracks = results.items.map(formatTrack);
       
       // Enrich search results with audio features
       const enrichedTracks = await enrichTracksWithFeatures(formattedTracks);
       setSearchResults(enrichedTracks);
+
+      if (addToHistory) {
+        navigate({ type: 'search', query });
+      }
     } catch (error) {
       console.error('Error searching:', error);
     }
   };
 
   // Handle playlist selection
-  const handleSelectPlaylist = async (playlistId) => {
+  const handleSelectPlaylist = async (playlistId, addToHistory = true) => {
     try {
       setActivePlaylist(playlistId);
       setIsSearching(false);
@@ -101,6 +139,10 @@ const Home = () => {
       // Enrich playlist tracks with audio features
       const enrichedTracks = await enrichTracksWithFeatures(tracks);
       setPlaylistTracks(enrichedTracks);
+
+      if (addToHistory) {
+        navigate({ type: 'playlist', playlistId });
+      }
     } catch (error) {
       console.error('Error loading playlist:', error);
     }
@@ -131,21 +173,32 @@ const Home = () => {
   };
 
   // Handle show similar tracks using ReccoBeats
-  const handleShowSimilar = async (track) => {
+  const handleShowSimilar = async (track, addToHistory = true) => {
     try {
       setLoadingSimilar(true);
       setSelectedTrackForSimilar(track);
       setShowSimilar(true);
+      setIsSearching(false);
+      setActivePlaylist(null);
       
       // Get similar tracks from ReccoBeats
       const similar = await findSimilarTracks(track.id, 20);
       setSimilarTracks(similar);
+
+      if (addToHistory) {
+        navigate({ type: 'similar', track });
+      }
     } catch (error) {
       console.error('Error finding similar tracks:', error);
       setSimilarTracks([]);
     } finally {
       setLoadingSimilar(false);
     }
+  };
+
+  const handleCloseSimilar = () => {
+    setShowSimilar(false);
+    navigate({ type: 'home' });
   };
 
   const getDisplayContent = () => {
@@ -155,7 +208,7 @@ const Home = () => {
           originalTrack={selectedTrackForSimilar}
           similarTracks={similarTracks}
           onPlay={handlePlayTrack}
-          onClose={() => setShowSimilar(false)}
+          onClose={handleCloseSimilar}
         />
       );
     }
@@ -171,7 +224,7 @@ const Home = () => {
             currentTrack={currentTrack}
             isPlaying={!isPaused}
             onPlay={(track) => handlePlayFromList(searchResults, track)}
-            onShowSimilar={handleShowSimilar}
+            onShowSimilar={(track) => handleShowSimilar(track, true)}
           />
         </div>
       );
@@ -189,7 +242,7 @@ const Home = () => {
             currentTrack={currentTrack}
             isPlaying={!isPaused}
             onPlay={(track) => handlePlayFromList(playlistTracks, track)}
-            onShowSimilar={handleShowSimilar}
+            onShowSimilar={(track) => handleShowSimilar(track, true)}
           />
         </div>
       );
@@ -242,11 +295,11 @@ const Home = () => {
         <Sidebar 
           playlists={userPlaylists}
           onCreatePlaylist={handleCreatePlaylist}
-          onSelectPlaylist={handleSelectPlaylist}
+          onSelectPlaylist={(id) => handleSelectPlaylist(id, true)}
           activePlaylist={activePlaylist}
         />
         <div className="flex-1 flex flex-col overflow-hidden">
-          <SearchBar onSearch={handleSearch} />
+          <SearchBar onSearch={(query) => handleSearch(query, true)} />
           <div className="flex-1 overflow-y-auto bg-gradient-to-b from-neutral-900 to-black p-6">
             {loadingSimilar ? (
               <div className="flex items-center justify-center h-64">

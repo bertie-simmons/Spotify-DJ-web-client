@@ -1,5 +1,5 @@
 const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-const REDIRECT_URI = 'http://127.0.0.1:5173/callback';
+const REDIRECT_URI = import.meta.env.VITE_SPOTIFY_REDIRECT_URI;
 const SCOPES = 'streaming user-read-email user-read-private user-library-read user-library-modify user-read-playback-state user-modify-playback-state playlist-read-private playlist-modify-public playlist-modify-private';
 
 const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';

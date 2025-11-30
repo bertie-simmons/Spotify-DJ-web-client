@@ -4,6 +4,8 @@ This is a React web application that integrates with Spotify's Web API and Playb
 
 ## Important Notes
 
+- This project is still under development - it is not finished
+
 - Spotify has deprecated their Audio Features, Audio Analysis, and Recommendations API endpoints. This app used those endpoints now making the recommendation feature broken. I am currently trying to find workarounds with different APIs.
 
 - Spotify Premium is required for the Web Playback SDK to function. Free tier users can browse and search but cannot play music within the app.

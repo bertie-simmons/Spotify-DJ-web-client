@@ -2,9 +2,9 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { PlayerProvider } from './context/PlayerContext';
+import { NavigationProvider } from './context/NavigationContext';
 import Home from './pages/Home';
 import Callback from './pages/Callback';
-import { Music } from 'lucide-react';
 import logo from './assets/Spotify_Primary_Logo_RGB_Green.png';
 
 // Login page component
@@ -14,11 +14,11 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-neutral-900 to-black flex items-center justify-center">
       <div className="text-center">
-        <div className="mb-8 flex justify-center">
+        <div className="mb-9 flex justify-center">
           <img
             src={logo}
             alt="Logo"
-            className="w-10 h-auto object-contain"
+            className="w-20 object-contain"
           />
         </div>
         <h1 className="text-white text-5xl font-bold mb-4">
@@ -66,20 +66,22 @@ function App() {
   return (
     <AuthProvider>
       <PlayerProvider>
-        <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/callback" element={<Callback />} />
-            <Route 
-              path="/" 
-              element={
-                <ProtectedRoute>
-                  <Home />
-                </ProtectedRoute>
-              } 
-            />
-          </Routes>
-        </Router>
+        <NavigationProvider>
+          <Router>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/callback" element={<Callback />} />
+              <Route 
+                path="/" 
+                element={
+                  <ProtectedRoute>
+                    <Home />
+                  </ProtectedRoute>
+                } 
+              />
+            </Routes>
+          </Router>
+        </NavigationProvider>
       </PlayerProvider>
     </AuthProvider>
   );
