@@ -1,6 +1,7 @@
 export const SPOTIFY_AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
 export const SPOTIFY_API_BASE = 'https://api.spotify.com/v1';
 
+// TODO - change to camelot alphaneumeric 
 export const MUSICAL_KEYS = {
   0: 'C',
   1: 'C♯/D♭',
