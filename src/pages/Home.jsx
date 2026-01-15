@@ -9,12 +9,9 @@ import { useAuth } from '../context/AuthContext';
 import { usePlayback } from '../hooks/usePlayback';
 import { usePlayer } from '../context/PlayerContext';
 import { useNavigation } from '../context/NavigationContext';
-import { 
-  getUserPlaylists, 
-  getSavedTracks,
-  searchTracks,
-  getPlaylistTracks,
-} from '../services/spotify/spotifyAPI';
+import { useSearch } from '../hooks/useSearch';
+import { usePlaylists } from '../hooks/usePlaylists';
+import { getSavedTracks } from '../services/spotify/spotifyAPI';
 import { findSimilarTracks, enrichTracksWithFeatures } from '../services/utils/musicAnalysis';
 import { formatTrack } from '../services/utils/formatters';
 import { Music } from 'lucide-react';
@@ -26,11 +23,17 @@ const Home = () => {
   const { currentTrack, isPaused } = usePlayer();
   const { currentView, navigate } = useNavigation();
   
-  const [userPlaylists, setUserPlaylists] = useState([]);
+  const { results: searchResults, loading: searchLoading, searchTracks, clearResults } = useSearch();
+  const { 
+    playlists: userPlaylists, 
+    loading: playlistsLoading, 
+    loadPlaylists, 
+    getTracks: getPlaylistTracksHook 
+  } = usePlaylists(user?.id);
+  
   const [featuredTracks, setFeaturedTracks] = useState([]);
   const [activePlaylist, setActivePlaylist] = useState(null);
   const [playlistTracks, setPlaylistTracks] = useState([]);
-  const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showSimilar, setShowSimilar] = useState(false);
@@ -38,12 +41,12 @@ const Home = () => {
   const [similarTracks, setSimilarTracks] = useState([]);
   const [loadingSimilar, setLoadingSimilar] = useState(false);
 
-  // Load user playlists and saved tracks on mount
+  // load user playlists and saved tracks on mount
   useEffect(() => {
     loadInitialData();
   }, []);
 
-  // Handle navigation changes
+  // navigation
   useEffect(() => {
     if (!currentView) return;
 
@@ -52,6 +55,7 @@ const Home = () => {
         setIsSearching(false);
         setShowSimilar(false);
         setActivePlaylist(null);
+        clearResults();
         break;
       
       case 'playlist':
@@ -75,17 +79,13 @@ const Home = () => {
     try {
       setLoading(true);
       
-      // Load user playlists
-      const playlistsData = await getUserPlaylists(50);
-      setUserPlaylists(playlistsData.items);
+      await loadPlaylists();
 
-      // Load user's saved tracks
       const savedTracksData = await getSavedTracks(20);
       const tracks = savedTracksData.items
         .filter(item => item.track)
         .map(item => formatTrack(item.track));
       
-      // Enrich with audio features from ReccoBeats
       const enrichedTracks = await enrichTracksWithFeatures(tracks);
       setFeaturedTracks(enrichedTracks);
     } catch (error) {
@@ -96,10 +96,9 @@ const Home = () => {
     }
   };
 
-  // Handle search
   const handleSearch = async (query, addToHistory = true) => {
     if (!query.trim()) {
-      setSearchResults([]);
+      clearResults();
       setIsSearching(false);
       return;
     }
@@ -108,13 +107,13 @@ const Home = () => {
       setIsSearching(true);
       setShowSimilar(false);
       setActivePlaylist(null);
+
+      await searchTracks(query, 50);
       
-      const results = await searchTracks(query, 50);
-      const formattedTracks = results.items.map(formatTrack);
-      
-      // Enrich search results with audio features
-      const enrichedTracks = await enrichTracksWithFeatures(formattedTracks);
-      setSearchResults(enrichedTracks);
+      if (searchResults.tracks && searchResults.tracks.length > 0) {
+        const formattedTracks = searchResults.tracks.map(formatTrack);
+        const enrichedTracks = await enrichTracksWithFeatures(formattedTracks);
+      }
 
       if (addToHistory) {
         navigate({ type: 'search', query });
@@ -124,20 +123,19 @@ const Home = () => {
     }
   };
 
-  // Handle playlist selection
   const handleSelectPlaylist = async (playlistId, addToHistory = true) => {
     try {
       setActivePlaylist(playlistId);
       setIsSearching(false);
       setShowSimilar(false);
+      clearResults();
       
-      const tracksData = await getPlaylistTracks(playlistId);
-      const tracks = tracksData.items
+      const tracks = await getPlaylistTracksHook(playlistId);
+      const formattedTracks = tracks
         .filter(item => item.track)
         .map(item => formatTrack(item.track));
       
-      // Enrich playlist tracks with audio features
-      const enrichedTracks = await enrichTracksWithFeatures(tracks);
+      const enrichedTracks = await enrichTracksWithFeatures(formattedTracks);
       setPlaylistTracks(enrichedTracks);
 
       if (addToHistory) {
@@ -148,12 +146,11 @@ const Home = () => {
     }
   };
 
-  // Handle create playlist
+  // TODO - add playlist stuff
   const handleCreatePlaylist = async () => {
     console.log('Create playlist - TODO: Add modal');
   };
 
-  // Handle track play
   const handlePlayTrack = async (track) => {
     try {
       await playTrack(track);
@@ -162,7 +159,6 @@ const Home = () => {
     }
   };
 
-  // Handle play from list
   const handlePlayFromList = async (tracks, track) => {
     try {
       const startIndex = tracks.findIndex(t => t.id === track.id);
@@ -172,7 +168,6 @@ const Home = () => {
     }
   };
 
-  // Handle show similar tracks using ReccoBeats
   const handleShowSimilar = async (track, addToHistory = true) => {
     try {
       setLoadingSimilar(true);
@@ -180,8 +175,8 @@ const Home = () => {
       setShowSimilar(true);
       setIsSearching(false);
       setActivePlaylist(null);
-      
-      // Get similar tracks from ReccoBeats
+      clearResults();
+
       const similar = await findSimilarTracks(track.id, 20);
       setSimilarTracks(similar);
 
@@ -217,13 +212,13 @@ const Home = () => {
       return (
         <div>
           <h2 className="text-white text-2xl font-bold mb-4">
-            Search Results ({searchResults.length})
+            Search Results ({searchResults.tracks.length})
           </h2>
           <TrackList
-            tracks={searchResults}
+            tracks={searchResults.tracks}
             currentTrack={currentTrack}
             isPlaying={!isPaused}
-            onPlay={(track) => handlePlayFromList(searchResults, track)}
+            onPlay={(track) => handlePlayFromList(searchResults.tracks, track)}
             onShowSimilar={(track) => handleShowSimilar(track, true)}
           />
         </div>
