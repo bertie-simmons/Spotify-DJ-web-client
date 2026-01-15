@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { exchangeCodeForToken } from '../services/spotify/spotifyAuth';
-import { Music } from 'lucide-react';
+import logo from '../assets/Spotify_Primary_Logo_RGB_Green.png';
 
 const Callback = () => {
   const navigate = useNavigate();
@@ -60,8 +60,12 @@ const Callback = () => {
           <div>
             <div className="mb-6 flex justify-center">
               <div className="animate-spin">
-                <Music size={48} className="text-spotify-green" />
-              </div>
+                <img
+                  src={logo}
+                  alt="Logo"
+                  className="w-10 h-auto object-contain"
+                />
+            </div>
             </div>
             <h2 className="text-white text-2xl font-bold mb-2">
               Authenticating...
