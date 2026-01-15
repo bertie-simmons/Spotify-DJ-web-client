@@ -81,7 +81,7 @@ const Home = () => {
       
       await loadPlaylists();
 
-      const savedTracksData = await getSavedTracks(20);
+      const savedTracksData = await getSavedTracks(24);
       const tracks = savedTracksData.items
         .filter(item => item.track)
         .map(item => formatTrack(item.track));
@@ -148,7 +148,7 @@ const Home = () => {
 
   // TODO - add playlist stuff
   const handleCreatePlaylist = async () => {
-    console.log('Create playlist - TODO: Add modal');
+    console.log('Create playlist - TODO');
   };
 
   const handlePlayTrack = async (track) => {
