@@ -188,6 +188,7 @@ const Home = () => {
     }
   };
 
+  // TODO - change to last thing you were on instead of home
   const handleCloseSimilar = () => {
     setShowSimilar(false);
     navigate({ type: 'home' });
