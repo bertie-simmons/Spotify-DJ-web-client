@@ -1,99 +1,126 @@
 const RECCOBEATS_API_BASE = 'https://api.reccobeats.com/v1';
 
-/**
- * Helper function to make requests to reccobeats 
- */
-const fetchReccoBeats = async (endpoint, options = {}) => {
-  const response = await fetch(`${RECCOBEATS_API_BASE}${endpoint}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-  });
+const MAX_BATCH_SIZE = 40;
+const REQUEST_DELAY_MS = 300;
+const MAX_RETRIES = 2;
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || 'ReccoBeats API request failed');
+//==================================== Helpers ===============================================
+
+const sleep = (ms) => new Promise(res => setTimeout(res, ms));
+
+const chunkArray = (arr, size) => {
+  const chunks = [];
+  for (let i = 0; i < arr.length; i += size) {
+    chunks.push(arr.slice(i, i + size));
+  }
+  return chunks;
+};
+
+const fetchWithRetry = async (url, options, retries = MAX_RETRIES) => {
+  try {
+    const res = await fetch(url, options);
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || err.message || `ReccoBeats API error: ${res.status}`);
+    }
+
+    return res.json();
+  } catch (err) {
+    if (retries > 0) {
+      console.warn(`Retrying ReccoBeats request... (${retries} retries left)`);
+      await sleep(500);
+      return fetchWithRetry(url, options, retries - 1);
+    }
+    throw err;
+  }
+};
+
+//==============================================================================================
+
+/**
+ * Get track details from ReccoBeats using Spotify IDs
+ * This returns ReccoBeats IDs - needed for audio features
+ */
+const getTracksBySpotifyIds = async (spotifyIds) => {
+  const ids = Array.isArray(spotifyIds) ? spotifyIds.join(',') : spotifyIds;
+  return fetchWithRetry(`${RECCOBEATS_API_BASE}/track?ids=${ids}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+};
+
+/**
+ * Get audio features for a single track using ReccoBeats ID
+ */
+const getAudioFeaturesByReccoId = async (reccobeatsId) => {
+  return fetchWithRetry(`${RECCOBEATS_API_BASE}/track/${reccobeatsId}/audio-features`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+};
+
+//==============================================================================================
+
+/**
+ * Gets audio features for multiple tracks via spotify id
+ * 
+ * Input: array of Spotify track IDs
+ * Output: array of tracks with audio features
+ */
+export const getMultipleTracksAnalysis = async (trackIds) => {
+  if (!Array.isArray(trackIds) || trackIds.length === 0) {
+    return [];
   }
 
-  return response.json();
-};
+  const batches = chunkArray(trackIds, MAX_BATCH_SIZE);
+  const results = [];
 
-/**
- * Get track analysis
- */
-export const getTrackAnalysis = async (spotifyTrackId) => {
-  return fetchReccoBeats(`/track/${spotifyTrackId}`);
-};
+  for (let i = 0; i < batches.length; i++) {
+    try {
+      const batch = batches[i];
 
-/**
- * Get multiple track analysis
- */
-export const getMultipleTracksAnalysis = async (spotifyTrackIds) => {
-  const ids = spotifyTrackIds.join(',');
-  return fetchReccoBeats(`/tracks?ids=${ids}`);
-};
+      const trackData = await getTracksBySpotifyIds(batch);
 
-/**
- * Get similar tracks based on audio features
- */
-export const getSimilarTracks = async (spotifyTrackId, limit = 20) => {
-  return fetchReccoBeats(`/track/${spotifyTrackId}/similar?limit=${limit}`);
-};
+      if (!trackData?.tracks || trackData.tracks.length === 0) {
+        console.warn('No tracks found in ReccoBeats for batch:', batch);
+        continue;
+      }
 
-/**
- * Gets recommendations based on seed tracks
- */
-export const getRecommendationsBySeeds = async ({ seedTracks = [], limit = 20 }) => {
-  const params = new URLSearchParams({
-    seed_tracks: seedTracks.join(','),
-    limit: limit.toString(),
-  });
-  
-  return fetchReccoBeats(`/recommendations?${params.toString()}`);
-};
+      // get audio features for each track
+      const featuresPromises = trackData.tracks.map(async (track) => {
+        try {
+          const features = await getAudioFeaturesByReccoId(track.id);
+          
+          // combine track info with features
+          return {
+            ...features,
+            reccobeats_id: track.id,
+            href: track.href,
+            spotify_id: track.href?.split('/track/')[1] || null
+          };
+        } catch (err) {
+          console.error(`Failed to get features for track ${track.id}:`, err.message);
+          return null;
+        }
+      });
 
+      const batchResults = await Promise.all(featuresPromises);
+      results.push(...batchResults.filter(r => r !== null));
 
-/**
- * Search for tracks with audio features
- */
-export const searchTracksWithFeatures = async (query, limit = 20) => {
-  const params = new URLSearchParams({
-    q: query,
-    limit: limit.toString(),
-  });
-  
-  return fetchReccoBeats(`/search?${params.toString()}`);
-};
+      // rate limiting
+      if (i < batches.length - 1) {
+        await sleep(REQUEST_DELAY_MS);
+      }
 
-/**
- * Search for tracks by BPM
- */
-export const getTracksByBPM = async (minBpm, maxBpm, limit = 20) => {
-  const params = new URLSearchParams({
-    min_bpm: minBpm.toString(),
-    max_bpm: maxBpm.toString(),
-    limit: limit.toString(),
-  });
-  
-  return fetchReccoBeats(`/tracks/by-bpm?${params.toString()}`);
-};
+    } catch (err) {
+      console.error('ReccoBeats batch failed:', err.message);
+    }
+  }
 
-/**
- * Search for tracks by key
- */
-export const getTracksByKey = async (key, mode = 'major', limit = 20) => {
-  const params = new URLSearchParams({
-    key: key.toString(),
-    mode: mode,
-    limit: limit.toString(),
-  });
-  
-  return fetchReccoBeats(`/tracks/by-key?${params.toString()}`);
-};
-
-
-export const getPlaylistAnalysis = async (spotifyPlaylistId) => {
-  return fetchReccoBeats(`/playlist/${spotifyPlaylistId}`);
+  return results;
 };
