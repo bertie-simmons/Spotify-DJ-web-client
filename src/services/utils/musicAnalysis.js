@@ -83,6 +83,12 @@ export const enrichTracksWithAnalysis = async (tracks) => {
   }
 };
 
+// TODO - to see if two tracks are in key 
+// 1 up and down or A or B
+export const areKeysCompatible = (key1, key2) => {
+  return false;
+};
+
 export default {
   enrichTracksWithAnalysis,
   getTrackAnalysis,
