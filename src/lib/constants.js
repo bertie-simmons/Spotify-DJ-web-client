@@ -1,26 +1,40 @@
 export const SPOTIFY_AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
 export const SPOTIFY_API_BASE = 'https://api.spotify.com/v1';
 
-// TODO - change to camelot alphaneumeric 
-export const MUSICAL_KEYS = {
-  0: 'C',
-  1: 'C♯/D♭',
-  2: 'D',
-  3: 'D♯/E♭',
-  4: 'E',
-  5: 'F',
-  6: 'F♯/G♭',
-  7: 'G',
-  8: 'G♯/A♭',
-  9: 'A',
-  10: 'A♯/B♭',
-  11: 'B'
+// Camelot Wheel mapping
+const CAMELOT_WHEEL = {
+  // Major keys (mode = 1)
+  major: {
+    0: '8B', 
+    1: '3B',  
+    2: '10B', 
+    3: '5B',  
+    4: '12B', 
+    5: '7B',  
+    6: '2B',  
+    7: '9B',  
+    8: '4B',  
+    9: '11B', 
+    10: '6B', 
+    11: '1B'  
+  },
+  
+  minor: {
+    0: '5A',  
+    1: '12A', 
+    2: '7A',  
+    3: '2A',  
+    4: '9A',  
+    5: '4A',  
+    6: '11A', 
+    7: '6A',  
+    8: '1A',  
+    9: '8A',  
+    10: '3A', 
+    11: '10A' 
+  }
 };
 
-export const MODES = {
-  0: 'Minor',
-  1: 'Major'
-};
 
 // BPM tolerance for similar tracks
 export const BPM_TOLERANCE = 5;
