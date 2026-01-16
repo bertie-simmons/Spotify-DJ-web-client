@@ -2,7 +2,7 @@ export const SPOTIFY_AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
 export const SPOTIFY_API_BASE = 'https://api.spotify.com/v1';
 
 // Camelot Wheel mapping
-const CAMELOT_WHEEL = {
+export const CAMELOT_WHEEL = {
   // Major keys (mode = 1)
   major: {
     0: '8B', 
