@@ -12,7 +12,7 @@ import { useNavigation } from '../context/NavigationContext';
 import { useSearch } from '../hooks/useSearch';
 import { usePlaylists } from '../hooks/usePlaylists';
 import { getSavedTracks } from '../services/spotify/spotifyAPI';
-import { findSimilarTracks, enrichTracksWithFeatures } from '../services/utils/musicAnalysis';
+import { enrichTracksWithFeatures } from '../services/utils/musicAnalysis';
 import { formatTrack } from '../services/utils/formatters';
 import { Music } from 'lucide-react';
 import logo from '../assets/Spotify_Primary_Logo_RGB_Green.png';
@@ -177,9 +177,6 @@ const Home = () => {
       setActivePlaylist(null);
       clearResults();
 
-      const similar = await findSimilarTracks(track.id, 20);
-      setSimilarTracks(similar);
-
       if (addToHistory) {
         navigate({ type: 'similar', track });
       }
@@ -191,6 +188,7 @@ const Home = () => {
     }
   };
 
+  // TODO - change to last thing you were on instead of home
   const handleCloseSimilar = () => {
     setShowSimilar(false);
     navigate({ type: 'home' });
