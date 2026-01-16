@@ -22,3 +22,71 @@ const extractSpotifyIds = (tracks) => {
     .filter(id => id);
 };
 
+/**
+ * Enrich tracks with audio analysis data from reccobeats
+ */
+export const enrichTracksWithAnalysis = async (tracks) => {
+  if (!Array.isArray(tracks) || tracks.length === 0) {
+    return tracks;
+  }
+
+  try {
+    // extract Spotify IDs
+    const spotifyIds = extractSpotifyIds(tracks);
+    
+    if (spotifyIds.length === 0) {
+      console.warn('No valid Spotify IDs found in tracks');
+      return tracks;
+    }
+
+    // get audio features from Reccobeats
+    const audioFeatures = await getMultipleTracksAnalysis(spotifyIds);
+    
+    if (!audioFeatures || audioFeatures.length === 0) {
+      console.warn('No audio features returned from ReccoBeats');
+      return tracks;
+    }
+
+    // create a map of spotify_id -> features 
+    const featuresMap = new Map(
+      audioFeatures.map(f => [f.spotify_id, f])
+    );
+
+    // enrich each track with its audio features
+    return tracks.map(track => {
+      const trackId = track?.id || track?.track?.id;
+      const features = featuresMap.get(trackId);
+      
+      if (!features) {
+        return track;
+      }
+
+      return {
+        ...track,
+        bpm: features.tempo ? Math.round(features.tempo) : null,
+        key: getCamelotKey(features.key, features.mode),
+        energy: features.energy,
+        danceability: features.danceability,
+        valence: features.valence,
+        acousticness: features.acousticness,
+        instrumentalness: features.instrumentalness,
+        speechiness: features.speechiness,
+        liveness: features.liveness,
+        loudness: features.loudness,
+        timeSignature: features.time_signature,
+        audioFeatures: features // for reference
+      };
+    });
+  } catch (error) {
+    console.error('Error enriching tracks with analysis:', error);
+    return tracks; // return original tracks on error
+  }
+};
+
+export default {
+  enrichTracksWithAnalysis,
+  getTrackAnalysis,
+  getCamelotKey,
+  areKeysCompatible,
+  areBpmsCompatible
+};
