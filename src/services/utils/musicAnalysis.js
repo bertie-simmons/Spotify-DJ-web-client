@@ -25,7 +25,7 @@ const extractSpotifyIds = (tracks) => {
 /**
  * Enrich tracks with audio analysis data from reccobeats
  */
-export const enrichTracksWithAnalysis = async (tracks) => {
+export const enrichTracksWithFeatures = async (tracks) => {
   if (!Array.isArray(tracks) || tracks.length === 0) {
     return tracks;
   }
@@ -90,9 +90,7 @@ export const areKeysCompatible = (key1, key2) => {
 };
 
 export default {
-  enrichTracksWithAnalysis,
-  getTrackAnalysis,
+  enrichTracksWithFeatures,
   getCamelotKey,
-  areKeysCompatible,
-  areBpmsCompatible
+  areKeysCompatible
 };
