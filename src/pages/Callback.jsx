@@ -6,22 +6,27 @@ import logo from '../assets/Spotify_Primary_Logo_RGB_Green.png';
 const Callback = () => {
   const navigate = useNavigate();
   const [error, setError] = useState(null);
+  const hasProcessed = useRef(false);
 
   useEffect(() => {
+    // prevents double login
+    if (hasProcessed.current) return;
+    hasProcessed.current = true;
+
     const handleCallback = async () => {
       const params = new URLSearchParams(window.location.search);
       const code = params.get('code');
       const state = params.get('state');
       const error = params.get('error');
 
-      // Check for errors
+      // check for errors on spotify end
       if (error) {
         setError('Authentication failed. Please try again.');
         setTimeout(() => navigate('/'), 3000);
         return;
       }
 
-      // Verify state to prevent CSRF attacks
+      // verify state - CSRF attacks
       const savedState = localStorage.getItem('auth_state');
       if (state !== savedState) {
         setError('State mismatch. Authentication failed.');
