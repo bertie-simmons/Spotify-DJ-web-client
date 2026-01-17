@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { exchangeCodeForToken } from '../services/spotify/spotifyAuth';
 import logo from '../assets/Spotify_Primary_Logo_RGB_Green.png';
