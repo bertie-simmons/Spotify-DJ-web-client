@@ -34,19 +34,26 @@ const Callback = () => {
         return;
       }
 
-      if (code) {
-        try {
-          await exchangeCodeForToken(code);
-          // Redirect to home page after successful authentication
-          navigate('/');
-        } catch (err) {
-          console.error('Error during token exchange:', err);
-          setError('Failed to authenticate. Please try again.');
-          setTimeout(() => navigate('/'), 3000);
-        }
-      } else {
-        setError('No authorization code received.');
-        setTimeout(() => navigate('/'), 3000);
+      if (!code) {
+        console.error('No authorization code received');
+        setError('No authorization code received');
+        setTimeout(() => navigate('/login'), 3000);
+        return;
+      }
+
+      try {
+        console.log('Starting token exchange...');
+        await exchangeCodeForToken(code);
+        console.log('Token exchange successful, redirecting to home');
+        
+        // ensure token is saved with delay
+        setTimeout(() => {
+          navigate('/', { replace: true });
+        }, 100);
+      } catch (err) {
+        console.error('Error during token exchange:', err);
+        setError('Failed to authenticate. Please try again.');
+        setTimeout(() => navigate('/login'), 3000);
       }
     };
 
