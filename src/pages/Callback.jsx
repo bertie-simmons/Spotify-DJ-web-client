@@ -6,22 +6,27 @@ import logo from '../assets/Spotify_Primary_Logo_RGB_Green.png';
 const Callback = () => {
   const navigate = useNavigate();
   const [error, setError] = useState(null);
+  const hasProcessed = useRef(false);
 
   useEffect(() => {
+    // prevents double login
+    if (hasProcessed.current) return;
+    hasProcessed.current = true;
+
     const handleCallback = async () => {
       const params = new URLSearchParams(window.location.search);
       const code = params.get('code');
       const state = params.get('state');
       const error = params.get('error');
 
-      // Check for errors
+      // check for errors on spotify end
       if (error) {
         setError('Authentication failed. Please try again.');
         setTimeout(() => navigate('/'), 3000);
         return;
       }
 
-      // Verify state to prevent CSRF attacks
+      // verify state - CSRF attacks
       const savedState = localStorage.getItem('auth_state');
       if (state !== savedState) {
         setError('State mismatch. Authentication failed.');
@@ -29,19 +34,26 @@ const Callback = () => {
         return;
       }
 
-      if (code) {
-        try {
-          await exchangeCodeForToken(code);
-          // Redirect to home page after successful authentication
-          navigate('/');
-        } catch (err) {
-          console.error('Error during token exchange:', err);
-          setError('Failed to authenticate. Please try again.');
-          setTimeout(() => navigate('/'), 3000);
-        }
-      } else {
-        setError('No authorization code received.');
-        setTimeout(() => navigate('/'), 3000);
+      if (!code) {
+        console.error('No authorization code received');
+        setError('No authorization code received');
+        setTimeout(() => navigate('/login'), 3000);
+        return;
+      }
+
+      try {
+        console.log('Starting token exchange...');
+        await exchangeCodeForToken(code);
+        console.log('Token exchange successful, redirecting to home');
+        
+        // ensure token is saved with delay
+        setTimeout(() => {
+          navigate('/', { replace: true });
+        }, 100);
+      } catch (err) {
+        console.error('Error during token exchange:', err);
+        setError('Failed to authenticate. Please try again.');
+        setTimeout(() => navigate('/login'), 3000);
       }
     };
 
