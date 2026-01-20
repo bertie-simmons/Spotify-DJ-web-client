@@ -40,11 +40,29 @@ const Home = () => {
   const [selectedTrackForSimilar, setSelectedTrackForSimilar] = useState(null);
   const [similarTracks, setSimilarTracks] = useState([]);
   const [loadingSimilar, setLoadingSimilar] = useState(false);
+  const [formattedSearchTracks, setFormattedSearchTracks] = useState([]);
 
   // load user playlists and saved tracks on mount
   useEffect(() => {
     loadInitialData();
   }, []);
+
+  // format and enrich search results when they change
+  useEffect(() => {
+    const formatSearchResults = async () => {
+      if (searchResults.tracks && searchResults.tracks.length > 0) {
+        const formattedTracks = searchResults.tracks.map(formatTrack);
+        const enrichedTracks = await enrichTracksWithFeatures(formattedTracks);
+        setFormattedSearchTracks(enrichedTracks);
+      } else {
+        setFormattedSearchTracks([]);
+      }
+    };
+
+    if (isSearching) {
+      formatSearchResults();
+    }
+  }, [searchResults.tracks, isSearching]);
 
   // navigation
   useEffect(() => {
@@ -100,6 +118,7 @@ const Home = () => {
     if (!query.trim()) {
       clearResults();
       setIsSearching(false);
+      setFormattedSearchTracks([]);
       return;
     }
 
@@ -109,11 +128,6 @@ const Home = () => {
       setActivePlaylist(null);
 
       await searchTracks(query, 50);
-      
-      if (searchResults.tracks && searchResults.tracks.length > 0) {
-        const formattedTracks = searchResults.tracks.map(formatTrack);
-        const enrichedTracks = await enrichTracksWithFeatures(formattedTracks);
-      }
 
       if (addToHistory) {
         navigate({ type: 'search', query });
@@ -206,17 +220,17 @@ const Home = () => {
       );
     }
 
-    if (isSearching && searchResults.length > 0) {
+    if (isSearching && formattedSearchTracks.length > 0) {
       return (
         <div>
           <h2 className="text-white text-2xl font-bold mb-4">
-            Search Results ({searchResults.tracks.length})
+            Search Results ({formattedSearchTracks.length})
           </h2>
           <TrackList
-            tracks={searchResults.tracks}
+            tracks={formattedSearchTracks}
             currentTrack={currentTrack}
             isPlaying={!isPaused}
-            onPlay={(track) => handlePlayFromList(searchResults.tracks, track)}
+            onPlay={(track) => handlePlayFromList(formattedSearchTracks, track)}
             onShowSimilar={(track) => handleShowSimilar(track, true)}
           />
         </div>
