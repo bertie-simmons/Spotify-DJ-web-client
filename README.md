@@ -1,6 +1,6 @@
 # Spotify Music Discovery
 
-This is a React web application that integrates with Spotify's Web API and Playback SDK to discover similar songs and manage playlists. Browse your music library, search for tracks, and find similar songs based on audio features.
+This is a single page frontend web application that integrates Spotify's Web API, Playback SDK and Reccobeats API to discover similar songs based of audio features like key and bpm.
 
 ## Important Notes
 
@@ -26,6 +26,23 @@ This is a React web application that integrates with Spotify's Web API and Playb
 
 - Spotify-Inspired UI - Clean, modern interface matching Spotify's design language
 
+## Preview
+
+![Home](./assests/home.png)
+**Home Page**
+
+
+![Playlists](./assests/playlist.png)
+**Playlists**
+
+
+![Search](./assests/search.png)
+**Search**
+
+
+![Similar Tracks](./assests/similar.png)
+**Similar tracks** (working on a solution)
+
 ## Tech Stack
 
 - Frontend: React 18 + Vite
@@ -36,7 +53,6 @@ This is a React web application that integrates with Spotify's Web API and Playb
     - Spotify Web API
     - Spotify Web Playback SDK
     - Reccobeats API
-
 
 - State Management: React Context API
 
@@ -81,7 +97,6 @@ npm install
 ```
 VITE_SPOTIFY_CLIENT_ID= (paste your client id here from step 1)
 VITE_SPOTIFY_REDIRECT_URI=http://127.0.0.1:5173/callback
-VITE_SPOTIFY_SCOPES=streaming user-read-email user-read-private user-library-read user-library-modify user-read-playback-state user-modify-playback-state user-read-playback-position user-read-recently-played user-top-read playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private
 ```
 5. Start Development Server
 ```
