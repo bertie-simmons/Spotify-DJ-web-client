@@ -15,6 +15,12 @@ const SearchBar = ({ onSearch }) => {
     }
   };
 
+  const handleChange = (e) => {
+  const newQuery = e.target.value;
+  setQuery(newQuery);
+  onSearch(newQuery); 
+};
+
   const handleLogout = () => {
     logout();
     setShowDropdown(false);
@@ -47,7 +53,7 @@ const SearchBar = ({ onSearch }) => {
             <input
               type="text"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={handleChange}
               onKeyPress={handleKeyPress}
               placeholder="Search for songs, artists, or albums..."
               className="w-full bg-white text-black rounded-full pl-12 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"

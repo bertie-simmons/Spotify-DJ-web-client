@@ -13,9 +13,10 @@ const TrackList = ({ tracks, currentTrack, isPlaying, onPlay, onShowSimilar }) =
       {/* table header */}
       <div className="grid grid-cols-12 gap-4 px-4 py-2 text-gray-400 text-sm border-b border-gray-800 mb-2">
         <div className="col-span-1 text-center">#</div>
-        <div className="col-span-5">Title</div>
+        <div className="col-span-3">Title</div>
         <div className="col-span-3">Album</div>
-        <div className="col-span-2">BPM / Key</div>
+        <div className="col-span-1">BPM</div>
+        <div className="col-span-2">Key</div>
         <div className="col-span-1 flex">
           <Clock size={16} />
         </div>
@@ -55,7 +56,7 @@ const TrackList = ({ tracks, currentTrack, isPlaying, onPlay, onShowSimilar }) =
               </div>
 
               {/* title and artist */}
-              <div className="col-span-5 flex items-center gap-3 min-w-0">
+              <div className="col-span-3 flex items-center gap-3 min-w-0">
                 <div className="w-10 h-10 bg-gray-700 rounded shrink-0">
                   {track.albumArt ? (
                     <img 
@@ -86,10 +87,14 @@ const TrackList = ({ tracks, currentTrack, isPlaying, onPlay, onShowSimilar }) =
                 {track.album}
               </div>
 
-              {/* BPM and key */}
-              <div className="col-span-2 flex items-center gap-2 text-gray-400 text-sm">
+              {/* BPM */}
+              <div className="col-span-1 flex items-center gap-2 text-gray-400 text-sm">
                 {track.bpm && <span>{track.bpm}</span>}
-                {track.key && <span>• {track.key}</span>}
+              </div>
+
+              {/* Key */}
+              <div className="col-span-2 flex items-center gap-2 text-gray-400 text-sm">
+                {track.key && <span>{track.key}</span>}
               </div>
 
               {/* duration */}
