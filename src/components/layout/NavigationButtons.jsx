@@ -6,7 +6,7 @@ const NavigationButtons = () => {
   const { goBack, goForward, goHome, canGoBack, canGoForward, currentView } = useNavigation();
 
   return (
-    <div className="flex items-center gap-3 ml-2">
+    <div className="flex items-center gap-3 ml-5">
       {/* back Button */}
       <button
         onClick={goBack}
